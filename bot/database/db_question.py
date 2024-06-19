@@ -12,6 +12,19 @@ def db_check_user(telegram_id: int, username: str, firstname: str, lastname: str
     con.commit()
     con.close()
 
+def db_check_title_in_tasks(telegram_id: int, title: str) -> bool:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(f"SELECT * FROM Tasks WHERE telegram_id = {telegram_id} AND title = '{title}'")
+    result = cur.fetchone()
+    con.commit()
+    con.close()
+    if result == None:
+        return False
+    else:
+        return True
+
+
 
 def db_set_task(telegram_id: int, title: str, description: str, date: str, time: str) -> bool:
     try:

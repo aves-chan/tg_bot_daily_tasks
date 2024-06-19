@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Cancel, Calendar
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.database.db_question import db_set_task
+from bot.database.db_question import db_set_task, db_check_title_in_tasks
 from bot.states import NewTask, MainSG
 
 from datetime import date
@@ -16,15 +16,25 @@ async def handler_title(message: Message,
                         message_input: MessageInput,
                         dialog_manager: DialogManager
                         ) -> None:
-    dialog_manager.dialog_data['title'] = message.text
-    await dialog_manager.next()
+    if len(message.text) <= 15:
+        if db_check_title_in_tasks(telegram_id=dialog_manager.event.from_user.id, title=message.text):
+            await dialog_manager.event.answer('a task with that name already exists')
+        else:
+            dialog_manager.dialog_data['title'] = message.text
+            await dialog_manager.next()
+    else:
+        await dialog_manager.event.answer(f'you are sending a long title, your size title is {len(message.text)}')
 
 async def handler_description(message: Message,
                               message_input: MessageInput,
                               dialog_manager: DialogManager
                               ) -> None:
-    dialog_manager.dialog_data['description'] = message.text
-    await dialog_manager.next()
+    if len(message.text) <= 3500:
+        dialog_manager.dialog_data['description'] = message.text
+        await dialog_manager.next()
+    else:
+        await dialog_manager.event.answer(f'you are sending a long description, your size description is {len(message.text)}')
+
 
 async def on_click_date(callback_query: CallbackQuery,
                         button: Button,
@@ -99,13 +109,13 @@ async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
 
 new_task_dialog = Dialog(
     Window(
-        Const('send title please'),
+        Const('send title please, maximum of 15 characters'),
         MessageInput(func=handler_title, content_types=ContentType.TEXT),
         Cancel(),
         state=NewTask.set_title
     ),
     Window(
-        Const('send description please'),
+        Const('send description please, maximum of 3500 characters'),
         MessageInput(func=handler_description, content_types=ContentType.TEXT),
         Back(),
         state=NewTask.set_description
