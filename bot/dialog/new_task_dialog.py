@@ -55,6 +55,7 @@ async def handler_time(message: Message,
     regexp = re.compile("(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])")
     if (bool(regexp.match(text))):
         dialog_manager.dialog_data['time'] = text
+        dialog_manager.dialog_data['remind'] = True
         await dialog_manager.next()
 
 async def on_click_chose_date(callback_query: CallbackQuery,
@@ -81,10 +82,11 @@ async def on_click_set_task(callback_query: CallbackQuery,
                             dialog_manager: DialogManager,
                             ) -> None:
     result = db_set_task(telegram_id=callback_query.from_user.id,
-                         title=dialog_manager.dialog_data['title'],
-                         description=dialog_manager.dialog_data['description'],
-                         date=dialog_manager.dialog_data['date'],
-                         time=dialog_manager.dialog_data['time'])
+                         title=dialog_manager.dialog_data.get('title'),
+                         description=dialog_manager.dialog_data.get('description'),
+                         date=dialog_manager.dialog_data.get('date'),
+                         time=dialog_manager.dialog_data.get('time'),
+                         remind=dialog_manager.dialog_data.get('remind'))
     if (result):
         await callback_query.answer(text='successfully!')
         await dialog_manager.start(MainSG.main)

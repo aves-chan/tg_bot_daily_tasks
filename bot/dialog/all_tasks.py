@@ -5,9 +5,10 @@ from aiogram import Dispatcher, Bot
 from aiogram.dispatcher.middlewares.user_context import EventContext
 from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import Dialog, Window, DialogManager
+from aiogram_dialog import Dialog, Window, DialogManager, ChatEvent
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Calendar, Select, ScrollingGroup, Next
+from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Checkbox, Select, ScrollingGroup, \
+    ManagedCheckbox
 from aiogram_dialog.widgets.text import Const, Format, Multi
 
 from bot.database.db_question import db_set_task, db_get_tasks, db_get_task
@@ -67,6 +68,17 @@ all_tasks = Dialog(
     ),
     Window(
         Format('<b>{title}</b>\n\n<b>{description}</b>\n\nremind: <b>{date} {time}</b>'),
+        Checkbox(
+            Const('completed ✅'),
+            Const('completed ❌'),
+            id='s_completed',
+            default=False,
+        ),
+        Row(
+            Button(Const('edit reminder'), id='edit_reminder'),
+            Button(Const('edit task'), id='edit_task')
+        ),
+        Button(Const('delete task'), id='delete_task'),
         Back(),
         getter=get_task,
         parse_mode='HTML',
