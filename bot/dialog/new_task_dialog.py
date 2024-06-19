@@ -143,7 +143,7 @@ new_task_dialog = Dialog(
     ),
     Window(
         Const('right?'),
-        Format('title: <b>{title}</b>\ndescription: <b>{description}</b>\ndate: <b>{date}</b>\ntime: <b>{time}</b>'),
+        Format('title: <b>{title}</b>\n\ndescription: <b>{description}</b>\n\nremind: <b>{date} {time}</b>'),
         Row(
             Button(Const('Yes'), id='yes', on_click=on_click_set_task),
             Button(Const('No'), id='no', on_click=on_click_edit_task),
