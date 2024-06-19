@@ -1,23 +1,32 @@
-import asyncio
-import logging
-
 from aiogram import Bot, Dispatcher
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
+from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
 
-from handlers.main_handlers import main_router
+from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
 
+from bot.database.db_question import db_check_user
+from bot.dialog.all_tasks import all_tasks
+from bot.dialog.main_dialog_and_profile import main_dialog
+from bot.dialog.new_task_dialog import new_task_dialog
+from bot.states import MainSG
 from config import BOT_TOKEN
 
-dp = Dispatcher(storage=MemoryStorage())
-dp.include_routers(main_router)
-
-async def main() -> None:
-    bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    await dp.start_polling(bot)
+import logging
 
 
-if __name__ == "__main__":
+storage = MemoryStorage()
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(storage=storage)
+dp.include_routers(main_dialog, new_task_dialog, all_tasks)
+setup_dialogs(dp)
+
+@dp.message(Command("start"))
+async def start(message: Message, dialog_manager: DialogManager):
+    db_check_user(message.from_user.id, message.from_user.username, message.from_user.first_name, message.from_user.last_name)
+    await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
+
+
+if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    dp.run_polling(bot, skip_updates=True)

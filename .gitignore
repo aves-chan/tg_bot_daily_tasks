@@ -2,3 +2,5 @@
 __pycache__
 config.py
 */__pycache__
+bot/database/database.db
+bot/database/database.sqbpro
