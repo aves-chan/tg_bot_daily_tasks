@@ -32,7 +32,8 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
         con.commit()
         con.close()
         return True
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 def db_delete_task(telegram_id: int, title: str) -> bool:

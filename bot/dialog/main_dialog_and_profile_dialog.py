@@ -26,7 +26,6 @@ main_dialog = Dialog(
         Start(Const('profile'), id='profile', state=MainSG.profile),
         state=MainSG.main
     ),
-
     Window(
         Format('id: <tg-spoiler>{id}</tg-spoiler>\nfirstname: <b>{firstname}</b>\nlastname: <b>{lastname}</b>\nusername: <b>{username}</b>\ncount task: <b>{count_task}</b>'),
         Back(),

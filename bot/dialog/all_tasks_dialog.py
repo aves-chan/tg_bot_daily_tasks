@@ -2,11 +2,13 @@ import operator
 
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, Window, DialogManager
-from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Checkbox, Select, ScrollingGroup
-from aiogram_dialog.widgets.text import Const, Format, Multi
+from aiogram_dialog.dialog import ChatEvent
+from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Checkbox, Select, ScrollingGroup, \
+    ManagedCheckbox, SwitchTo
+from aiogram_dialog.widgets.text import Const, Format
 
 from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task
-from bot.states import AllTasks
+from bot.states import AllTasks, EditTask
 
 async def on_clicked_task(callback_query: CallbackQuery,
                           button: Button,
@@ -15,10 +17,11 @@ async def on_clicked_task(callback_query: CallbackQuery,
     dialog_manager.dialog_data['title'] = item_id
     await dialog_manager.next()
 
-async def on_clicked_delete_task(callback_query: CallbackQuery,
-                                 button: Button,
-                                 dialog_manager: DialogManager) -> None:
-    await dialog_manager.switch_to(AllTasks.delete_task)
+async def checkbox_completion_task(event: ChatEvent,
+                                   checkbox: ManagedCheckbox,
+                                   manager: DialogManager) -> None:
+    print("Check status changed:", checkbox.is_checked())
+
 
 async def delete_task(callback_query: CallbackQuery,
                       button: Button,
@@ -77,12 +80,13 @@ all_tasks = Dialog(
             Const('completed ❌'),
             id='s_completed',
             default=False,
+            on_click=checkbox_completion_task
         ),
         Row(
             Button(Const('edit reminder'), id='edit_reminder'),
-            Button(Const('edit task'), id='edit_task')
+            Start(Const('edit task'), id='edit_task', state=EditTask.choose_edit)
         ),
-        Button(Const('delete task'), id='delete_task', on_click=on_clicked_delete_task),
+        SwitchTo(Const('delete task'), id='delete_task', state=AllTasks.delete_task),
         Back(),
         getter=get_task,
         parse_mode='HTML',
@@ -93,5 +97,5 @@ all_tasks = Dialog(
         Button(Const('yes'), id='yes', on_click=delete_task),
         Back(),
         state=AllTasks.delete_task
-    )
+    ),
 )

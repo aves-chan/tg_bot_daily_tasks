@@ -29,6 +29,7 @@ async def handler_description(message: Message,
                               message_input: MessageInput,
                               dialog_manager: DialogManager
                               ) -> None:
+    print(message.text)
     if len(message.text) <= 3500:
         dialog_manager.dialog_data['description'] = message.text
         await dialog_manager.next()
