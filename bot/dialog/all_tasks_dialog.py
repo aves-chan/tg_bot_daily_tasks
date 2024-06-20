@@ -1,4 +1,6 @@
 import operator
+import re
+from datetime import date
 
 from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
@@ -6,13 +8,14 @@ from aiogram_dialog import Dialog, Window, DialogManager
 from aiogram_dialog.dialog import ChatEvent
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Checkbox, Select, ScrollingGroup, \
-    ManagedCheckbox, SwitchTo
+    ManagedCheckbox, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task, db_check_title_in_tasks, db_edit_title, \
-    db_edit_description
+    db_edit_description, db_edit_reminder
 
-from bot.states import AllTasks
+from bot.states import AllTasks, NewTask
+
 
 async def on_clicked_task(callback_query: CallbackQuery,
                           button: Button,
@@ -87,6 +90,27 @@ async def handler_edit_description(message: Message,
     else:
         await dialog_manager.event.answer(f'you are sending a long description, your size description is {len(message.text)}')
 
+async def on_click_edit_date(callback_query: CallbackQuery,
+                             button: Button,
+                             dialog_manager: DialogManager,
+                             selected_date: date
+                             ) -> None:
+    dialog_manager.dialog_data['date'] = selected_date
+    await dialog_manager.switch_to(state=AllTasks.edit_time)
+
+async def handler_time(message: Message,
+                       button: Button,
+                       dialog_manager: DialogManager
+                       ) -> None:
+    text = message.text
+    regexp = re.compile("(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])")
+    if (bool(regexp.match(text))):
+        db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
+                         title=dialog_manager.dialog_data.get('title'),
+                         date=dialog_manager.dialog_data.get('date'),
+                         time=text,
+                         remind=True)
+        await dialog_manager.switch_to(state=AllTasks.about_task)
 
 all_tasks = Dialog(
     Window(
@@ -117,8 +141,8 @@ all_tasks = Dialog(
             on_click=checkbox_completion_task
         ),
         Row(
-            Button(Const('edit reminder'), id='edit_reminder'),
-            SwitchTo(Const('edit task'), id='edit_task', state=AllTasks.choose_edit)
+            SwitchTo(Const('edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
+            SwitchTo(Const('edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
         ),
         SwitchTo(Const('delete task'), id='delete_task', state=AllTasks.delete_task),
         Back(),
@@ -138,19 +162,40 @@ all_tasks = Dialog(
             SwitchTo(Const('title'), id='e_title', state=AllTasks.edit_title),
             SwitchTo(Const('description'), id='e_description', state=AllTasks.edit_description),
         ),
-        Cancel(),
-        state=AllTasks.choose_edit
+        SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
+        state=AllTasks.choose_edit_title_or_description
     ),
     Window(
         Const('send title please, maximum of 15 characters'),
         MessageInput(func=handler_edit_title, content_types=ContentType.TEXT),
-        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit),
+        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit_title_or_description),
         state=AllTasks.edit_title
     ),
     Window(
         Const('send description please, maximum of 3500 characters'),
         MessageInput(func=handler_edit_description, content_types=ContentType.TEXT),
-        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit),
+        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit_title_or_description),
         state=AllTasks.edit_description
+    ),
+    Window(
+        Const('choose what you will change'),
+        Row(
+            SwitchTo(Const('edit'), id='e_edit', state=AllTasks.edit_date),
+            Button(Const('remove'), id='e_remove'),
+        ),
+        SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
+        state=AllTasks.choose_edit_remind
+    ),
+    Window(
+        Const('choose date'),
+        Calendar(id='calendar', on_click=on_click_edit_date),
+        SwitchTo(Const('Back'), id='e_back', state=AllTasks.choose_edit_remind),
+        state=AllTasks.edit_date,
+    ),
+    Window(
+        Const('send time like this 22:22 please'),
+        MessageInput(func=handler_time, content_types=ContentType.TEXT),
+        SwitchTo(Const('Back'), id='e_back', state=AllTasks.edit_date),
+        state=AllTasks.edit_time
     )
 )

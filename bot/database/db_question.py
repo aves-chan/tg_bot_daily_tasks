@@ -1,5 +1,7 @@
 import sqlite3
 
+from datetime import date
+
 from config import DB_PATH
 
 
@@ -34,6 +36,14 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
         return True
     except:
         return False
+
+def db_edit_reminder(telegram_id: int, title: str, date: str, time: str, remind: bool) -> bool:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(
+        f"UPDATE Tasks SET date = '{date}', time = '{time}', remind = '{remind}' WHERE telegram_id = {telegram_id} AND title = '{title}'")
+    con.commit()
+    con.close()
 
 def db_edit_title(telegram_id: int, title: str, new_title: str) -> None:
     con = sqlite3.connect(DB_PATH)

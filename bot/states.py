@@ -17,9 +17,13 @@ class AllTasks(StatesGroup):
     all_tasks = State()
     about_task = State()
     delete_task = State()
-    choose_edit = State()
+    choose_edit_title_or_description = State()
     edit_title = State()
     edit_description = State()
+    choose_edit_remind = State()
+    edit_time = State()
+    edit_date = State()
+
 
 
 

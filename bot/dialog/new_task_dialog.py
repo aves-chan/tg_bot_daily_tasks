@@ -93,12 +93,6 @@ async def on_click_set_task(callback_query: CallbackQuery,
     else:
         await callback_query.answer(text='ops, try again(', show_alert=True)
         await dialog_manager.start(MainSG.main)
-def generate_time_menu() -> list:
-    buttons = []
-    for i in range(24):
-        i = str(i)
-        buttons.append(Button(Const(i), id=i))
-    return buttons
 
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     return {
