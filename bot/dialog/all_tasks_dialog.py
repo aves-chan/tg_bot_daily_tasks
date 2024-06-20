@@ -1,14 +1,18 @@
 import operator
 
+from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, Window, DialogManager
 from aiogram_dialog.dialog import ChatEvent
+from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Start, Cancel, Checkbox, Select, ScrollingGroup, \
     ManagedCheckbox, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task
-from bot.states import AllTasks, EditTask
+from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task, db_check_title_in_tasks, db_edit_title, \
+    db_edit_description
+
+from bot.states import AllTasks
 
 async def on_clicked_task(callback_query: CallbackQuery,
                           button: Button,
@@ -54,6 +58,36 @@ async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
         'time': task[5],
     }
 
+async def handler_edit_title(message: Message,
+                             message_input: MessageInput,
+                             dialog_manager: DialogManager
+                             ) -> None:
+    if len(message.text) <= 15:
+        if db_check_title_in_tasks(telegram_id=dialog_manager.event.from_user.id,
+                                   title=message.text):
+            await dialog_manager.event.answer('a task with that name already exists')
+        else:
+            db_edit_title(telegram_id=dialog_manager.event.from_user.id,
+                          title=dialog_manager.dialog_data.get('title'),
+                          new_title=message.text)
+            dialog_manager.dialog_data['title'] = dialog_manager.event.text
+            await dialog_manager.switch_to(AllTasks.about_task)
+    else:
+        await dialog_manager.event.answer(f'you are sending a long title, your size title is {len(message.text)}')
+
+async def handler_edit_description(message: Message,
+                                   message_input: MessageInput,
+                                   dialog_manager: DialogManager
+                                   ) -> None:
+    if len(message.text) <= 3500:
+        db_edit_description(telegram_id=dialog_manager.event.from_user.id,
+                            title=dialog_manager.dialog_data.get('title'),
+                            new_description=dialog_manager.event.text)
+        await dialog_manager.switch_to(AllTasks.about_task)
+    else:
+        await dialog_manager.event.answer(f'you are sending a long description, your size description is {len(message.text)}')
+
+
 all_tasks = Dialog(
     Window(
         Const('all tasks'),
@@ -84,7 +118,7 @@ all_tasks = Dialog(
         ),
         Row(
             Button(Const('edit reminder'), id='edit_reminder'),
-            Start(Const('edit task'), id='edit_task', state=EditTask.choose_edit)
+            SwitchTo(Const('edit task'), id='edit_task', state=AllTasks.choose_edit)
         ),
         SwitchTo(Const('delete task'), id='delete_task', state=AllTasks.delete_task),
         Back(),
@@ -98,4 +132,25 @@ all_tasks = Dialog(
         Back(),
         state=AllTasks.delete_task
     ),
+    Window(
+        Const('choose what you will change'),
+        Row(
+            SwitchTo(Const('title'), id='e_title', state=AllTasks.edit_title),
+            SwitchTo(Const('description'), id='e_description', state=AllTasks.edit_description),
+        ),
+        Cancel(),
+        state=AllTasks.choose_edit
+    ),
+    Window(
+        Const('send title please, maximum of 15 characters'),
+        MessageInput(func=handler_edit_title, content_types=ContentType.TEXT),
+        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit),
+        state=AllTasks.edit_title
+    ),
+    Window(
+        Const('send description please, maximum of 3500 characters'),
+        MessageInput(func=handler_edit_description, content_types=ContentType.TEXT),
+        SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit),
+        state=AllTasks.edit_description
+    )
 )

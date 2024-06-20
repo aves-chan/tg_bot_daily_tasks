@@ -17,8 +17,6 @@ class AllTasks(StatesGroup):
     all_tasks = State()
     about_task = State()
     delete_task = State()
-
-class EditTask(StatesGroup):
     choose_edit = State()
     edit_title = State()
     edit_description = State()

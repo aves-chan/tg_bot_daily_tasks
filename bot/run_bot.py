@@ -7,7 +7,6 @@ from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
 
 from bot.database.db_question import db_check_user
 from bot.dialog.all_tasks_dialog import all_tasks
-from bot.dialog.edit_task_dialog import edit_task_dialog
 from bot.dialog.main_dialog_and_profile_dialog import main_dialog
 from bot.dialog.new_task_dialog import new_task_dialog
 from bot.states import MainSG
@@ -19,7 +18,7 @@ import logging
 storage = MemoryStorage()
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=storage)
-dp.include_routers(main_dialog, new_task_dialog, all_tasks, edit_task_dialog)
+dp.include_routers(main_dialog, new_task_dialog, all_tasks)
 setup_dialogs(dp)
 
 @dp.message(Command("start"))

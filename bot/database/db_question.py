@@ -35,17 +35,17 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
     except:
         return False
 
-def db_edit_title(telegram_id: int, title: str) -> None:
+def db_edit_title(telegram_id: int, title: str, new_title: str) -> None:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
-    cur.execute(f"UPDATE Tasks SET title = '{title}' WHERE telegram_id = {telegram_id} AND title = '{title}'")
+    cur.execute(f"UPDATE Tasks SET title = '{new_title}' WHERE telegram_id = {telegram_id} AND title = '{title}'")
     con.commit()
     con.close()
 
-def db_edit_description(telegram_id: int, title: str, description: str) -> None:
+def db_edit_description(telegram_id: int, title: str, new_description: str) -> None:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
-    cur.execute(f"UPDATE Tasks SET description = '{description}' WHERE telegram_id = {telegram_id} AND title = '{title}'")
+    cur.execute(f"UPDATE Tasks SET description = '{new_description}' WHERE telegram_id = {telegram_id} AND title = '{title}'")
     con.commit()
     con.close()
 
