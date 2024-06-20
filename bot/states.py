@@ -14,8 +14,9 @@ class NewTask(StatesGroup):
     confirm = State()
 
 class AllTasks(StatesGroup):
-    choose_task = State()
+    all_tasks = State()
     about_task = State()
+    delete_task = State()
 
 
 

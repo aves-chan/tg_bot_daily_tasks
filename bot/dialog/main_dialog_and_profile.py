@@ -1,3 +1,4 @@
+from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Start
 from aiogram_dialog.widgets.text import Const, Format
@@ -15,13 +16,11 @@ async def get_profile(dialog_manager: DialogManager, **kwargs):
         'count_task': count_task,
     }
 
-
-
 main_dialog = Dialog(
     Window(
         Const('Main menu'),
         Row(
-            Start(Const('my tasks'), id='my_tasks', state=AllTasks.choose_task),
+            Start(Const('my tasks'), id='my_tasks', state=AllTasks.all_tasks),
             Start(Const('new tasks'), id='new_tasks', state=NewTask.set_title)
         ),
         Start(Const('profile'), id='profile', state=MainSG.profile),

@@ -35,6 +35,13 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
     except:
         return False
 
+def db_delete_task(telegram_id: int, title: str) -> bool:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(f"DELETE FROM Tasks WHERE telegram_id = {telegram_id} AND title = '{title}'")
+    con.commit()
+    con.close()
+
 def db_task_completed(telegram_id: int, title: str) -> bool:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
