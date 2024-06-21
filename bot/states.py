@@ -23,6 +23,7 @@ class AllTasks(StatesGroup):
     choose_edit_remind = State()
     edit_time = State()
     edit_date = State()
+    remove_remind = State()
 
 
 

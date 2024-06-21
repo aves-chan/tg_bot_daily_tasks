@@ -112,6 +112,16 @@ async def handler_time(message: Message,
                          remind=True)
         await dialog_manager.switch_to(state=AllTasks.about_task)
 
+async def remove_remind(callback_query: CallbackQuery,
+                        button: Button,
+                        dialog_manager: DialogManager,
+                        ) -> None:
+    db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
+                     title=dialog_manager.dialog_data.get('title'),
+                     date='No',
+                     time='No',
+                     remind=False)
+
 all_tasks = Dialog(
     Window(
         Const('all tasks'),
@@ -181,7 +191,7 @@ all_tasks = Dialog(
         Const('choose what you will change'),
         Row(
             SwitchTo(Const('edit'), id='e_edit', state=AllTasks.edit_date),
-            Button(Const('remove'), id='e_remove'),
+            SwitchTo(Const('remove'), id='e_remove', state=AllTasks.remove_remind),
         ),
         SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
         state=AllTasks.choose_edit_remind
@@ -197,5 +207,13 @@ all_tasks = Dialog(
         MessageInput(func=handler_time, content_types=ContentType.TEXT),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.edit_date),
         state=AllTasks.edit_time
+    ),
+    Window(
+        Const('are you sure you want to remove the reminder'),
+        Row(
+            SwitchTo(Const('Yes'), id='yes', state=AllTasks.about_task, on_click=remove_remind),
+            SwitchTo(Const('Back'), id='back', state=AllTasks.about_task)
+        ),
+        state=AllTasks.remove_remind
     )
 )
