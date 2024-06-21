@@ -10,7 +10,8 @@ from aiogram_dialog.widgets.text import Const, Format
 from bot.database.db_question import db_set_task, db_check_title_in_tasks
 from bot.states import NewTask, MainSG
 
-from datetime import date
+from datetime import date, datetime, time, timedelta
+
 
 async def handler_title(message: Message,
                         message_input: MessageInput,
@@ -51,20 +52,27 @@ async def handler_time(message: Message,
                        button: Button,
                        dialog_manager: DialogManager
                        ) -> None:
-    text = message.text
     regexp = re.compile("(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])")
-    if (bool(regexp.match(text))):
-        dialog_manager.dialog_data['time'] = text
-        dialog_manager.dialog_data['remind'] = True
-        await dialog_manager.next()
+    if (bool(regexp.match(message.text))):
+        result_date = dialog_manager.dialog_data['date']
+        result_time = datetime.strptime(message.text, '%H:%M').time()
+        if result_date == datetime.now().date() and result_time < (datetime.now() + timedelta(minutes=10)).time():
+            await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
+        else:
+            dialog_manager.dialog_data['time'] = message.text
+            dialog_manager.dialog_data['remind'] = True
+            await dialog_manager.next()
 
 async def on_click_chose_date(callback_query: CallbackQuery,
                               button: Button,
                               dialog_manager: DialogManager,
                               selected_date: date
                               ) -> None:
-    dialog_manager.dialog_data['date'] = selected_date
-    await dialog_manager.next()
+    if selected_date >= datetime.now().date():
+        dialog_manager.dialog_data['date'] = selected_date
+        await dialog_manager.next()
+    else:
+        await dialog_manager.event.answer(text='choose a date no later than today', show_alert=True)
 
 async def on_click_edit_task(callback_query: CallbackQuery,
                              button: Button,
