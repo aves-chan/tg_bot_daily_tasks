@@ -6,9 +6,9 @@ from aiogram.types import Message
 from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
 
 from bot.database.db_question import db_check_user
-from bot.dialog.all_tasks_dialog import all_tasks
+from bot.dialog.all_tasks.all_tasks_dialog import all_tasks
 from bot.dialog.main_dialog_and_profile_dialog import main_dialog
-from bot.dialog.new_task_dialog import new_task_dialog
+from bot.dialog.new_task.new_task_dialog import new_task_dialog
 from bot.states import MainSG
 from config import BOT_TOKEN
 
