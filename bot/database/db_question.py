@@ -104,3 +104,19 @@ def db_get_count_task(telegram_id: int) -> int:
     con.commit()
     con.close()
     return count_tasks
+
+def get_all_tasks() -> list:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(f"SELECT * FROM Tasks WHERE remind = 'True'")
+    result = cur.fetchall()
+    con.commit()
+    con.close()
+    return result
+def delete_remind(telegram_id:int, title:str) -> None:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    print(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
+    cur.execute(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
+    con.commit()
+    con.close()
