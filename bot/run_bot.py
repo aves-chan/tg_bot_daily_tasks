@@ -1,7 +1,5 @@
-import time
 import datetime
-import threading
-import requests
+import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -18,29 +16,20 @@ from config import BOT_TOKEN
 
 import logging
 
-def send_task(task: tuple):
-    print(task)
-    requests.get(f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={task[0]}&text=<b>{task[2]}\n{task[3]}</b>&parse_mode=HTML')
-
-
 def return_first_index(result: list) -> list:
     return result[0]
 
-def update_remind() -> None:
+async def update_remind() -> None:
     while True:
         result = get_all_tasks()
-        remind_times = [[task[4] + " " + task[5], task] for task in result]
-        remind_times = [[datetime.datetime.strptime(remind_time[0], "%Y-%m-%d %H:%M"), remind_time] for remind_time in remind_times]
-        print(len(remind_times))
+        remind_times = [[task[4] + ' ' + task[5], task] for task in result]
+        remind_times = [[datetime.datetime.strptime(remind_time[0], '%Y-%m-%d %H:%M'), remind_time] for remind_time in remind_times]
         if len(remind_times) > 0:
             min_time = min(remind_times, key=return_first_index)
-            print(min_time)
             if min_time[0] < datetime.datetime.now():
-                send_task(task=min_time[1][1])
+                await bot.send_message(chat_id=min_time[1][1][0], text=f'<b>{min_time[1][1][2]}</b>\n\n{min_time[1][1][3]}', parse_mode='HTML')
                 completed_remind(min_time[1][1][0], min_time[1][1][2])
-        time.sleep(2)
-
-get_all_tasks()
+        await asyncio.sleep(0.5)
 
 storage = MemoryStorage()
 bot = Bot(token=BOT_TOKEN)
@@ -48,7 +37,7 @@ dp = Dispatcher(storage=storage)
 dp.include_routers(main_dialog, new_task_dialog, all_tasks)
 setup_dialogs(dp)
 
-@dp.message(Command("start"))
+@dp.message(Command('start'))
 async def start(message: Message, dialog_manager: DialogManager):
     db_check_user(telegram_id=message.from_user.id,
                   username=message.from_user.username,
@@ -56,9 +45,10 @@ async def start(message: Message, dialog_manager: DialogManager):
                   lastname=message.from_user.last_name)
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
+async def main():
+    asyncio.ensure_future(update_remind())
+    logging.basicConfig(level=logging.INFO)
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    thread = threading.Thread(target=update_remind)
-    thread.start()
-    logging.basicConfig(level=logging.INFO)
-    dp.run_polling(bot, skip_updates=True)
+    asyncio.run(main())

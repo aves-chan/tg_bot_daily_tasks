@@ -10,7 +10,7 @@ def db_check_user(telegram_id: int, username: str, firstname: str, lastname: str
     cur = con.cursor()
     cur.execute(f"SELECT * FROM Users WHERE telegram_id = {telegram_id}")
     if cur.fetchone() == None:
-        cur.execute(f"INSERT INTO Users (telegram_id, username, firstname, lastname, chat_id) VALUES ({telegram_id}, '{username}', '{firstname}', '{lastname}')")
+        cur.execute(f"INSERT INTO Users (telegram_id, username, firstname, lastname) VALUES ({telegram_id}, '{username}', '{firstname}', '{lastname}')")
     con.commit()
     con.close()
 
