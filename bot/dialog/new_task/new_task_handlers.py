@@ -54,7 +54,7 @@ async def handler_time(message: Message,
     if (bool(regexp.match(message.text))):
         result_date = dialog_manager.dialog_data['date']
         result_time = datetime.strptime(message.text, '%H:%M').time()
-        if result_date == datetime.now().date() and result_time < (datetime.now() + timedelta(minutes=10)).time():
+        if result_date == datetime.now().date() and result_time < datetime.now().time():
             await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
         else:
             dialog_manager.dialog_data['time'] = message.text

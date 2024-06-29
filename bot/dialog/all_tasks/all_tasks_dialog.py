@@ -7,8 +7,8 @@ from aiogram_dialog.widgets.kbd import Button, Back, Row, Cancel, Checkbox, Sele
 from aiogram_dialog.widgets.text import Const, Format
 
 from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_all_tasks, checkbox_completion_task, \
-    delete_task, handler_edit_title, handler_edit_description, on_click_edit_date, remove_remind
-from bot.dialog.new_task.new_task_dialog import get_task, handler_time
+    delete_task, handler_edit_title, handler_edit_description, on_click_edit_date, remove_remind, handler_edit_time
+from bot.dialog.new_task.new_task_dialog import get_task
 from bot.states import AllTasks
 
 
@@ -94,7 +94,7 @@ all_tasks = Dialog(
     ),
     Window(
         Const('send time like this 22:22 please'),
-        MessageInput(func=handler_time, content_types=ContentType.TEXT),
+        MessageInput(func=handler_edit_time, content_types=ContentType.TEXT),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.edit_date),
         state=AllTasks.edit_time
     ),

@@ -97,15 +97,15 @@ async def on_click_edit_date(callback_query: CallbackQuery,
     else:
         await dialog_manager.event.answer(text='choose a date no later than today', show_alert=True)
 
-async def handler_time(message: Message,
-                       button: Button,
-                       dialog_manager: DialogManager
-                       ) -> None:
+async def handler_edit_time(message: Message,
+                            button: Button,
+                            dialog_manager: DialogManager
+                            ) -> None:
     regexp = re.compile("(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])")
     if (bool(regexp.match(message.text))):
         result_date = dialog_manager.dialog_data['date']
         result_time = datetime.strptime(message.text, '%H:%M').time()
-        if result_date == datetime.now().date() and result_time < (datetime.now() + timedelta(minutes=10)).time():
+        if result_date == datetime.now().date() and result_time < datetime.now().time():
             await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
         else:
             db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,

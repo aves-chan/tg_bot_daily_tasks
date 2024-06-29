@@ -1,6 +1,7 @@
 import time
 import datetime
 import threading
+import requests
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -17,12 +18,12 @@ from config import BOT_TOKEN
 
 import logging
 
-def send_task():
-    # bot.send_message(chat_id=,
-    #                  text=)
-    pass
+def send_task(task: tuple):
+    print(task)
+    requests.get(f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={task[0]}&text=<b>{task[2]}\n{task[3]}</b>&parse_mode=HTML')
 
-def return_first_index(result: list)->list:
+
+def return_first_index(result: list) -> list:
     return result[0]
 
 def update_remind() -> None:
@@ -30,11 +31,13 @@ def update_remind() -> None:
         result = get_all_tasks()
         remind_times = [[task[4] + " " + task[5], task] for task in result]
         remind_times = [[datetime.datetime.strptime(remind_time[0], "%Y-%m-%d %H:%M"), remind_time] for remind_time in remind_times]
-        min_time = min(remind_times, key=return_first_index)
-        print(min_time)
-        if min_time[0] < datetime.datetime.now():
-            send_task()
-            completed_remind(min_time[1][1][0], min_time[1][1][2])
+        print(len(remind_times))
+        if len(remind_times) > 0:
+            min_time = min(remind_times, key=return_first_index)
+            print(min_time)
+            if min_time[0] < datetime.datetime.now():
+                send_task(task=min_time[1][1])
+                completed_remind(min_time[1][1][0], min_time[1][1][2])
         time.sleep(2)
 
 get_all_tasks()
