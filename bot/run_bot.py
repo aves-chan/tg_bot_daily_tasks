@@ -1,11 +1,12 @@
 import datetime
 import asyncio
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
+from aiogram_dialog import (DialogManager, setup_dialogs, StartMode, ShowMode)
 
 from bot.database.db_question import db_check_user, get_all_tasks, completed_remind
 from bot.dialog.all_tasks.all_tasks_dialog import all_tasks
@@ -15,6 +16,12 @@ from bot.states import MainSG
 from config import BOT_TOKEN
 
 import logging
+
+# def kb_back() -> InlineKeyboardMarkup:
+#     kb = InlineKeyboardBuilder()
+#     kb.button(text='main menu', callback_data='main menu')
+#     return kb.as_markup()
+
 
 def return_first_index(result: list) -> list:
     return result[0]
@@ -27,7 +34,10 @@ async def update_remind() -> None:
         if len(remind_times) > 0:
             min_time = min(remind_times, key=return_first_index)
             if min_time[0] < datetime.datetime.now():
-                await bot.send_message(chat_id=min_time[1][1][0], text=f'<b>{min_time[1][1][2]}</b>\n\n{min_time[1][1][3]}', parse_mode='HTML')
+                await bot.send_message(chat_id=min_time[1][1][0],
+                                       text=f'<b>{min_time[1][1][2]}</b>\n\n{min_time[1][1][3]}',
+                                       # reply_markup=kb_back(),
+                                       parse_mode='HTML')
                 completed_remind(min_time[1][1][0], min_time[1][1][2])
         await asyncio.sleep(0.5)
 
@@ -44,6 +54,10 @@ async def start(message: Message, dialog_manager: DialogManager):
                   firstname=message.from_user.first_name,
                   lastname=message.from_user.last_name)
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
+
+# @dp.callback_query(F.data == 'main menu')
+# async def start(cd: CallbackQuery, dialog_manager: DialogManager):
+#     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 async def main():
     asyncio.ensure_future(update_remind())
