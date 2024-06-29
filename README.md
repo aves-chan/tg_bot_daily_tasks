@@ -1,13 +1,13 @@
 # quick start
 
-## create 'config.py' and 'database.db' files
+## create `config.py` and `database.db` files
 
-# 'config.py' 
+# config.py
 ```
 BOT_TOKEN = "your token"
 DB_PATH = "path db"
 ```
-# 'database.db' 
+# database.db
 ```
 CREATE TABLE "Users" (
 	"id"	INTEGER,
@@ -15,6 +15,7 @@ CREATE TABLE "Users" (
 	"username"	TEXT,
 	"firstname"	TEXT,
 	"lastname"	TEXT,
+	"chat_id"	INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE TABLE "Tasks" (

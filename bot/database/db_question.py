@@ -5,12 +5,12 @@ from datetime import date
 from config import DB_PATH
 
 
-def db_check_user(telegram_id: int, username: str, firstname: str, lastname: str) -> None:
+def db_check_user(telegram_id: int, username: str, firstname: str, lastname: str, chat_id: int) -> None:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
     cur.execute(f"SELECT * FROM Users WHERE telegram_id = {telegram_id}")
     if cur.fetchone() == None:
-        cur.execute(f"INSERT INTO Users (telegram_id, username, firstname, lastname) VALUES ({telegram_id}, '{username}', '{firstname}', '{lastname}')")
+        cur.execute(f"INSERT INTO Users (telegram_id, username, firstname, lastname, chat_id) VALUES ({telegram_id}, '{username}', '{firstname}', '{lastname}', {chat_id})")
     con.commit()
     con.close()
 
@@ -113,10 +113,9 @@ def get_all_tasks() -> list:
     con.commit()
     con.close()
     return result
-def delete_remind(telegram_id:int, title:str) -> None:
+def completed_remind(telegram_id: int, title: str) -> None:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
-    print(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
     cur.execute(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
     con.commit()
     con.close()
