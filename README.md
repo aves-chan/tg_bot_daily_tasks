@@ -15,7 +15,6 @@ CREATE TABLE "Users" (
 	"username"	TEXT,
 	"firstname"	TEXT,
 	"lastname"	TEXT,
-	"chat_id"	INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE TABLE "Tasks" (

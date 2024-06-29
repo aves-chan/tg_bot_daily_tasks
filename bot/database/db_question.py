@@ -1,7 +1,5 @@
 import sqlite3
 
-from datetime import date
-
 from config import DB_PATH
 
 
@@ -118,5 +116,12 @@ def completed_remind(telegram_id: int, title: str) -> None:
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
     cur.execute(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
+    con.commit()
+    con.close()
+
+def set_complete(telegram_id: int, title: str, completion: str) -> None:
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(f"UPDATE Tasks SET completion = '{completion}' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
     con.commit()
     con.close()

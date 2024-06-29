@@ -1,5 +1,5 @@
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, ManagedCheckbox
 
 from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task, db_check_title_in_tasks, db_edit_title, \
-    db_edit_description, db_edit_reminder
+    db_edit_description, db_edit_reminder, set_complete
 
 from bot.states import AllTasks
 
@@ -20,10 +20,17 @@ async def on_clicked_task(callback_query: CallbackQuery,
     dialog_manager.dialog_data['title'] = item_id
     await dialog_manager.next()
 
-async def checkbox_completion_task(event: ChatEvent,
-                                   checkbox: ManagedCheckbox,
-                                   manager: DialogManager) -> None:
-    print("Check status changed:", checkbox.is_checked())
+async def on_clicked_completion_task(callback_query: CallbackQuery,
+                                     button: Button,
+                                     dialog_manager: DialogManager) -> None:
+    if dialog_manager.dialog_data.get('completion') == 'True':
+        result = 'False'
+    else:
+        result = 'True'
+    dialog_manager.dialog_data['completion'] = result
+    set_complete(telegram_id=dialog_manager.event.from_user.id,
+                 title=dialog_manager.dialog_data.get('title'),
+                 completion=result)
 
 
 async def delete_task(callback_query: CallbackQuery,
@@ -49,8 +56,13 @@ async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     task = db_get_task(telegram_id=dialog_manager.event.from_user.id,
                        title=dialog_manager.dialog_data.get('title'))
+    if task[1] == 'True':
+        completion = 'completed✅'
+    else:
+        completion = 'completed❌'
+    dialog_manager.dialog_data['completion'] = task[1]
     return {
-        'completion': task[1],
+        'completion': completion,
         'title': task[2],
         'description': task[3],
         'date': task[4],

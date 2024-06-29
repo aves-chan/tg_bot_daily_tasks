@@ -6,9 +6,10 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Cancel, Checkbox, Select, ScrollingGroup, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_all_tasks, checkbox_completion_task, \
-    delete_task, handler_edit_title, handler_edit_description, on_click_edit_date, remove_remind, handler_edit_time
-from bot.dialog.new_task.new_task_dialog import get_task
+from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_all_tasks, \
+    delete_task, handler_edit_title, handler_edit_description, on_click_edit_date, remove_remind, handler_edit_time, \
+    on_clicked_completion_task
+from bot.dialog.all_tasks.all_tasks_handlers import get_task
 from bot.states import AllTasks
 
 
@@ -33,13 +34,7 @@ all_tasks = Dialog(
     ),
     Window(
         Format('<b>{title}</b>\n\n<b>{description}</b>\n\nremind: <b>{date} {time}</b>'),
-        Checkbox(
-            Const('completed ✅'),
-            Const('completed ❌'),
-            id='s_completed',
-            default=False,
-            on_click=checkbox_completion_task
-        ),
+        Button(Format('{completion}'), id='compl', on_click=on_clicked_completion_task),
         Row(
             SwitchTo(Const('edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
             SwitchTo(Const('edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
