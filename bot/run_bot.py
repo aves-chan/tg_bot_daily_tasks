@@ -31,6 +31,7 @@ def update_remind() -> None:
         remind_times = [[task[4] + " " + task[5], task] for task in result]
         remind_times = [[datetime.datetime.strptime(remind_time[0], "%Y-%m-%d %H:%M"), remind_time] for remind_time in remind_times]
         min_time = min(remind_times, key=return_first_index)
+        print(min_time)
         if min_time[0] < datetime.datetime.now():
             send_task()
             completed_remind(min_time[1][1][0], min_time[1][1][2])
@@ -49,8 +50,7 @@ async def start(message: Message, dialog_manager: DialogManager):
     db_check_user(telegram_id=message.from_user.id,
                   username=message.from_user.username,
                   firstname=message.from_user.first_name,
-                  lastname=message.from_user.last_name,
-                  chat_id=message.chat.id)
+                  lastname=message.from_user.last_name)
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 
