@@ -56,7 +56,9 @@ async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     task = db_get_task(telegram_id=dialog_manager.event.from_user.id,
                        title=dialog_manager.dialog_data.get('title'))
-    if task[1] == 'True':
+    if task == None:
+        await dialog_manager.event.answer(text='task not found', show_alert=True)
+    elif task[1] == 'True':
         completion = 'completed✅'
     else:
         completion = 'completed❌'
