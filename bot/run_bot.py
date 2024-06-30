@@ -46,13 +46,13 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 dp.include_routers(main_dialog, new_task_dialog, all_tasks)
 setup_dialogs(dp)
-
+ 
 @dp.message(Command('start'))
 async def start(message: Message, dialog_manager: DialogManager):
     db_check_user(telegram_id=message.from_user.id,
                   username=message.from_user.username,
-                  firstname=message.from_user.first_name,
-                  lastname=message.from_user.last_name)
+                  first_name=message.from_user.first_name,
+                  last_name=message.from_user.last_name)
     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 # @dp.callback_query(F.data == 'main menu')

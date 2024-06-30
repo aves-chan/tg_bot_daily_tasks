@@ -1,16 +1,22 @@
 import sqlite3
 
+from sqlalchemy.orm import Session
+
+from bot.database.db_config import db_engine, UsersDB, TasksDB
 from config import DB_PATH
 
 
-def db_check_user(telegram_id: int, username: str, firstname: str, lastname: str) -> None:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"SELECT * FROM Users WHERE telegram_id = {telegram_id}")
-    if cur.fetchone() == None:
-        cur.execute(f"INSERT INTO Users (telegram_id, username, firstname, lastname) VALUES ({telegram_id}, '{username}', '{firstname}', '{lastname}')")
-    con.commit()
-    con.close()
+def db_check_user(telegram_id: int, username: str, first_name: str, last_name: str) -> None:
+    with Session(autoflush=True, bind=db_engine) as session:
+        result = session.query(UsersDB).filter(UsersDB.telegram_id == telegram_id).first()
+        print(result)
+        if result == None:
+            new_user = UsersDB(telegram_id=telegram_id,
+                               username=username,
+                               first_name=first_name,
+                               last_name=last_name)
+            session.add(new_user)
+            session.commit()
 
 def db_check_title_in_tasks(telegram_id: int, title: str) -> bool:
     con = sqlite3.connect(DB_PATH)
