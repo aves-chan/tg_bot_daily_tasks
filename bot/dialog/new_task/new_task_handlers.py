@@ -78,7 +78,7 @@ async def on_click_edit_task(callback_query: CallbackQuery,
                              ) -> None:
     data = callback_query.data
     if data == 'no':
-        if dialog_manager.dialog_data['date'] == 'No' and dialog_manager.dialog_data['time'] == 'No':
+        if dialog_manager.dialog_data['date'] == 'False' and dialog_manager.dialog_data['time'] == 'False':
             await dialog_manager.switch_to(NewTask.set_description)
         else:
             await dialog_manager.back()

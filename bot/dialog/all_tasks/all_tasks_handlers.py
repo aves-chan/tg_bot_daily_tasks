@@ -46,7 +46,7 @@ async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
     buttons = []
     i = 0
     for task in tasks:
-        buttons.append((task[2], str(i)))
+        buttons.append((task[3], str(i)))
         i += 1
     return {
         'buttons': buttons,
@@ -58,17 +58,17 @@ async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
                        title=dialog_manager.dialog_data.get('title'))
     if task == None:
         await dialog_manager.event.answer(text='task not found', show_alert=True)
-    elif task[1] == 'True':
+    elif task[2] == 'True':
         completion = 'completed✅'
     else:
         completion = 'completed❌'
-    dialog_manager.dialog_data['completion'] = task[1]
+    dialog_manager.dialog_data['completion'] = task[2]
     return {
         'completion': completion,
-        'title': task[2],
-        'description': task[3],
-        'date': task[4],
-        'time': task[5],
+        'title': task[3],
+        'description': task[4],
+        'date': task[5],
+        'time': task[6],
     }
 
 async def handler_edit_title(message: Message,

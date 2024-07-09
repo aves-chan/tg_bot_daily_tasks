@@ -29,16 +29,18 @@ def return_first_index(result: list) -> list:
 async def update_remind() -> None:
     while True:
         result = get_all_tasks()
-        remind_times = [[task[4] + ' ' + task[5], task] for task in result]
+        remind_times = [[task[5] + ' ' + task[6], task] for task in result]
+        print(remind_times)
         remind_times = [[datetime.datetime.strptime(remind_time[0], '%Y-%m-%d %H:%M'), remind_time] for remind_time in remind_times]
         if len(remind_times) > 0:
             min_time = min(remind_times, key=return_first_index)
+            print(min_time)
             if min_time[0] < datetime.datetime.now():
-                await bot.send_message(chat_id=min_time[1][1][0],
-                                       text=f'<b>{min_time[1][1][2]}</b>\n\n{min_time[1][1][3]}',
+                await bot.send_message(chat_id=min_time[1][1][1],
+                                       text=f'<b>{min_time[1][1][3]}</b>\n\n{min_time[1][1][4]}',
                                        # reply_markup=kb_back(),
                                        parse_mode='HTML')
-                completed_remind(min_time[1][1][0], min_time[1][1][2])
+                completed_remind(min_time[1][1][1], min_time[1][1][3])
         await asyncio.sleep(0.5)
 
 storage = MemoryStorage()
