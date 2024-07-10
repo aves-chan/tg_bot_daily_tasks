@@ -6,6 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
+from bot.database.db_config import CompletionColumn, RemindColumn
 from bot.database.db_question import db_get_tasks_by_id, db_get_task,db_delete_task, db_check_title_in_tasks, db_edit_title, \
     db_edit_description, db_edit_reminder, set_complete
 
@@ -22,10 +23,10 @@ async def on_clicked_task(callback_query: CallbackQuery,
 async def on_clicked_completion_task(callback_query: CallbackQuery,
                                      button: Button,
                                      dialog_manager: DialogManager) -> None:
-    if dialog_manager.dialog_data.get('completion') == 'True':
-        result = 'False'
+    if dialog_manager.dialog_data.get('completion') == CompletionColumn.completed:
+        result = CompletionColumn.not_completed
     else:
-        result = 'True'
+        result = CompletionColumn.completed
     dialog_manager.dialog_data['completion'] = result
     set_complete(telegram_id=dialog_manager.event.from_user.id,
                  title=dialog_manager.dialog_data.get('title'),
@@ -55,9 +56,10 @@ async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     task = db_get_task(telegram_id=dialog_manager.event.from_user.id,
                        title=dialog_manager.dialog_data.get('title'))
+    completion = '...'
     if task is None:
         await dialog_manager.event.answer(text='task not found', show_alert=True)
-    elif task.remind == 'True':
+    elif task.remind == CompletionColumn.completed:
         completion = 'completed✅'
     else:
         completion = 'completed❌'
@@ -125,7 +127,7 @@ async def handler_edit_time(message: Message,
                              title=dialog_manager.dialog_data.get('title'),
                              date=dialog_manager.dialog_data.get('date'),
                              time=message.text,
-                             remind='True')
+                             remind=RemindColumn.remind)
             await dialog_manager.switch_to(state=AllTasks.about_task)
 
 async def remove_remind(callback_query: CallbackQuery,
@@ -134,6 +136,6 @@ async def remove_remind(callback_query: CallbackQuery,
                         ) -> None:
     db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
                      title=dialog_manager.dialog_data.get('title'),
-                     date='No',
-                     time='No',
-                     remind='False')
+                     date='False',
+                     time='False',
+                     remind=RemindColumn.not_remind)

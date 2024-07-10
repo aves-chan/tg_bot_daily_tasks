@@ -5,10 +5,11 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
+from bot.database.db_config import RemindColumn
 from bot.database.db_question import db_set_task, db_check_title_in_tasks
 from bot.states import NewTask, MainSG
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 
 async def handler_title(message: Message,
@@ -42,8 +43,9 @@ async def on_click_date(callback_query: CallbackQuery,
     if (callback_query.data == 'yes'):
         await dialog_manager.next()
     elif (callback_query.data == 'no'):
-        dialog_manager.dialog_data['date'] = 'No'
-        dialog_manager.dialog_data['time'] = 'No'
+        dialog_manager.dialog_data['date'] = 'False'
+        dialog_manager.dialog_data['time'] = 'False'
+        dialog_manager.dialog_data['remind'] = RemindColumn.not_remind
         await dialog_manager.switch_to(state=NewTask.confirm)
 
 async def handler_time(message: Message,
@@ -58,7 +60,7 @@ async def handler_time(message: Message,
             await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
         else:
             dialog_manager.dialog_data['time'] = message.text
-            dialog_manager.dialog_data['remind'] = 'True'
+            dialog_manager.dialog_data['remind'] = RemindColumn.remind
             await dialog_manager.next()
 
 async def on_click_chose_date(callback_query: CallbackQuery,
@@ -76,12 +78,10 @@ async def on_click_edit_task(callback_query: CallbackQuery,
                              button: Button,
                              dialog_manager: DialogManager,
                              ) -> None:
-    data = callback_query.data
-    if data == 'no':
-        if dialog_manager.dialog_data['date'] == 'False' and dialog_manager.dialog_data['time'] == 'False':
-            await dialog_manager.switch_to(NewTask.set_description)
-        else:
-            await dialog_manager.back()
+    if dialog_manager.dialog_data['remind'] == RemindColumn.not_remind:
+        await dialog_manager.switch_to(NewTask.set_description)
+    else:
+        await dialog_manager.back()
 
 async def on_click_set_task(callback_query: CallbackQuery,
                             button: Button,
