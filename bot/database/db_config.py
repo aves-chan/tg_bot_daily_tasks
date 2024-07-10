@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, Text
 from sqlalchemy.orm import DeclarativeBase
 
 db_engine = create_engine('sqlite:///database.db')
@@ -11,21 +11,21 @@ class UsersDB(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     telegram_id = Column(Integer, nullable=False)
-    username = Column(String, nullable=False)
-    first_name = Column(String)
-    last_name = Column(String)
+    username = Column(Text, nullable=False)
+    first_name = Column(Text)
+    last_name = Column(Text)
 
 class TasksDB(Base):
     __tablename__ = 'tasks'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     telegram_id = Column(Integer, nullable=False)
-    completion = Column(String, default='False')
-    title = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    date = Column(String, default='False')
-    time = Column(String, default='False')
-    remind = Column(String, default='False')
+    completion = Column(Text, default='False')
+    title = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    date = Column(Text, default='False')
+    time = Column(Text, default='False')
+    remind = Column(Text, default='False')
 
 Base.metadata.create_all(bind=db_engine)
 

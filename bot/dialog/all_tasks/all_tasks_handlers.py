@@ -3,9 +3,8 @@ from datetime import date, datetime
 
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
-from aiogram_dialog.dialog import ChatEvent
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, ManagedCheckbox
+from aiogram_dialog.widgets.kbd import Button
 
 from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task, db_check_title_in_tasks, db_edit_title, \
     db_edit_description, db_edit_reminder, set_complete
@@ -46,7 +45,7 @@ async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
     buttons = []
     i = 0
     for task in tasks:
-        buttons.append((task[3], str(i)))
+        buttons.append((task.title, str(i)))
         i += 1
     return {
         'buttons': buttons,
