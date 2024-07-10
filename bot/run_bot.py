@@ -8,7 +8,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from aiogram_dialog import (DialogManager, setup_dialogs, StartMode, ShowMode)
 
-from bot.database.db_question import db_check_user, get_all_tasks, completed_remind
+from bot.database.db_question import db_check_user, get_all_tasks, set_completed_remind
 from bot.dialog.all_tasks.all_tasks_dialog import all_tasks
 from bot.dialog.main_dialog_and_profile_dialog import main_dialog
 from bot.dialog.new_task.new_task_dialog import new_task_dialog
@@ -38,7 +38,7 @@ async def update_remind() -> None:
                                        text=f'<b>{min_time[1][1].title}</b>\n\n{min_time[1][1].description}',
                                        # reply_markup=kb_back(),
                                        parse_mode='HTML')
-                completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
+                set_completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
         await asyncio.sleep(0.5)
 
 storage = MemoryStorage()

@@ -1,12 +1,9 @@
-import sqlite3
 import typing
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from bot.database.db_config import db_engine, UsersDB, TasksDB
-from config import DB_PATH
-
 
 def db_check_user(telegram_id: int, username: str, first_name: str, last_name: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
@@ -27,6 +24,12 @@ def db_check_title_in_tasks(telegram_id: int, title: str) -> bool:
         else:
             return True
 
+def db_delete_task(telegram_id: int, title: str) -> None:
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        session.delete(task)
+        session.commit()
+
 def db_set_task(telegram_id: int, title: str, description: str, date: str, time: str, remind: str) -> bool:
     with Session(autoflush=True, bind=db_engine) as session:
         try:
@@ -41,6 +44,18 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
             return True
         except:
             return False
+
+def set_complete(telegram_id: int, title: str, completion: str) -> None:
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        task.complete = completion
+        session.commit()
+
+def set_completed_remind(telegram_id: int, title: str) -> None:
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        task.remind = 'Completed'
+        session.commit()
 
 def db_edit_reminder(telegram_id: int, title: str, date: str, time: str, remind: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
@@ -62,12 +77,6 @@ def db_edit_description(telegram_id: int, title: str, new_description: str) -> N
         task.description = new_description
         session.commit()
 
-def db_delete_task(telegram_id: int, title: str) -> None:
-    with Session(autoflush=True, bind=db_engine) as session:
-        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        session.delete(task)
-        session.commit()
-
 def db_get_tasks_by_id(telegram_id: int) -> typing.List[typing.Type[TasksDB]]:
     with Session(autoflush=True, bind=db_engine) as session:
         tasks = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).all()
@@ -87,15 +96,3 @@ def get_all_tasks() -> typing.List[typing.Type[TasksDB]]:
     with Session(autoflush=True, bind=db_engine) as session:
         tasks = session.query(TasksDB).filter(and_(TasksDB.remind == 'True')).all()
         return tasks
-
-def completed_remind(telegram_id: int, title: str) -> None:
-    with Session(autoflush=True, bind=db_engine) as session:
-        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        task.remind = 'Completed'
-        session.commit()
-
-def set_complete(telegram_id: int, title: str, completion: str) -> None:
-    with Session(autoflush=True, bind=db_engine) as session:
-        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        task.complete = completion
-        session.commit()
