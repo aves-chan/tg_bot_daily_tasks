@@ -18,12 +18,12 @@ async def handler_title(message: Message,
                         ) -> None:
     if len(message.text) <= 15:
         if db_check_title_in_tasks(telegram_id=dialog_manager.event.from_user.id, title=message.text):
-            await dialog_manager.event.answer('a task with that name already exists')
+            await dialog_manager.event.answer('A task with that name already exists')
         else:
             dialog_manager.dialog_data['title'] = message.text
             await dialog_manager.next()
     else:
-        await dialog_manager.event.answer(f'you are sending a long title, your size title is {len(message.text)}')
+        await dialog_manager.event.answer(f'You are sending a long title, your size title is {len(message.text)}')
 
 async def handler_description(message: Message,
                               message_input: MessageInput,
@@ -33,7 +33,7 @@ async def handler_description(message: Message,
         dialog_manager.dialog_data['description'] = message.text
         await dialog_manager.next()
     else:
-        await dialog_manager.event.answer(f'you are sending a long description, your size description is {len(message.text)}')
+        await dialog_manager.event.answer(f'You are sending a long description, your size description is {len(message.text)}')
 
 
 async def on_click_date(callback_query: CallbackQuery,
@@ -57,7 +57,7 @@ async def handler_time(message: Message,
         result_date = dialog_manager.dialog_data['date']
         result_time = datetime.strptime(message.text, '%H:%M').time()
         if result_date == datetime.now().date() and result_time < datetime.now().time():
-            await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
+            await dialog_manager.event.answer(text='You have sent an outdated date', show_alert=True)
         else:
             dialog_manager.dialog_data['time'] = message.text
             dialog_manager.dialog_data['remind'] = RemindColumn.remind
@@ -72,7 +72,7 @@ async def on_click_chose_date(callback_query: CallbackQuery,
         dialog_manager.dialog_data['date'] = selected_date
         await dialog_manager.next()
     else:
-        await dialog_manager.event.answer(text='choose a date no later than today', show_alert=True)
+        await dialog_manager.event.answer(text='Choose a date no later than today', show_alert=True)
 
 async def on_click_edit_task(callback_query: CallbackQuery,
                              button: Button,
@@ -94,10 +94,10 @@ async def on_click_set_task(callback_query: CallbackQuery,
                          time=dialog_manager.dialog_data.get('time'),
                          remind=dialog_manager.dialog_data.get('remind'))
     if (result):
-        await callback_query.answer(text='successfully!')
+        await callback_query.answer(text='Successfully!')
         await dialog_manager.start(MainSG.main)
     else:
-        await callback_query.answer(text='ops, try again(', show_alert=True)
+        await callback_query.answer(text='Ops, try again(', show_alert=True)
         await dialog_manager.start(MainSG.main)
 
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:

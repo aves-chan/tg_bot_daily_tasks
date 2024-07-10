@@ -27,8 +27,6 @@ async def on_clicked_completion_task(callback_query: CallbackQuery,
         result = CompletionColumn.not_completed
     else:
         result = CompletionColumn.completed
-    print('on_clicked_completion_task')
-    print(result)
     dialog_manager.dialog_data['completion'] = result
     set_complete(telegram_id=dialog_manager.event.from_user.id,
                  title=dialog_manager.dialog_data.get('title'),
@@ -40,7 +38,7 @@ async def delete_task(callback_query: CallbackQuery,
                       dialog_manager: DialogManager) -> None:
     db_delete_task(telegram_id=dialog_manager.event.from_user.id,
                    title=dialog_manager.dialog_data.get('title'))
-    await dialog_manager.event.answer(text='task deleted')
+    await dialog_manager.event.answer(text='Task deleted')
     await dialog_manager.switch_to(AllTasks.all_tasks)
 
 async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -60,14 +58,12 @@ async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
                        title=dialog_manager.dialog_data.get('title'))
     completion = '...'
     if task is None:
-        await dialog_manager.event.answer(text='task not found', show_alert=True)
+        await dialog_manager.event.answer(text='Task not found', show_alert=True)
     elif task.completion == CompletionColumn.completed:
         completion = 'completed✅'
     else:
         completion = 'completed❌'
     dialog_manager.dialog_data['completion'] = task.completion
-    print('get_task')
-    print(task.completion)
     return {
         'completion': completion,
         'title': task.title,
@@ -83,7 +79,7 @@ async def handler_edit_title(message: Message,
     if len(message.text) <= 15:
         if db_check_title_in_tasks(telegram_id=dialog_manager.event.from_user.id,
                                    title=message.text):
-            await dialog_manager.event.answer('a task with that name already exists')
+            await dialog_manager.event.answer('A task with that name already exists')
         else:
             db_edit_title(telegram_id=dialog_manager.event.from_user.id,
                           title=dialog_manager.dialog_data.get('title'),
@@ -91,7 +87,7 @@ async def handler_edit_title(message: Message,
             dialog_manager.dialog_data['title'] = dialog_manager.event.text
             await dialog_manager.switch_to(AllTasks.about_task)
     else:
-        await dialog_manager.event.answer(f'you are sending a long title, your size title is {len(message.text)}')
+        await dialog_manager.event.answer(f'You are sending a long title, your size title is {len(message.text)}')
 
 async def handler_edit_description(message: Message,
                                    message_input: MessageInput,
@@ -103,7 +99,7 @@ async def handler_edit_description(message: Message,
                             new_description=dialog_manager.event.text)
         await dialog_manager.switch_to(AllTasks.about_task)
     else:
-        await dialog_manager.event.answer(f'you are sending a long description, your size description is {len(message.text)}')
+        await dialog_manager.event.answer(f'You are sending a long description, your size description is {len(message.text)}')
 
 async def on_click_edit_date(callback_query: CallbackQuery,
                              button: Button,
@@ -114,7 +110,7 @@ async def on_click_edit_date(callback_query: CallbackQuery,
         dialog_manager.dialog_data['date'] = selected_date
         await dialog_manager.switch_to(state=AllTasks.edit_time)
     else:
-        await dialog_manager.event.answer(text='choose a date no later than today', show_alert=True)
+        await dialog_manager.event.answer(text='Choose a date no later than today', show_alert=True)
 
 async def handler_edit_time(message: Message,
                             button: Button,
@@ -125,7 +121,7 @@ async def handler_edit_time(message: Message,
         result_date = dialog_manager.dialog_data['date']
         result_time = datetime.strptime(message.text, '%H:%M').time()
         if result_date == datetime.now().date() and result_time < datetime.now().time():
-            await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
+            await dialog_manager.event.answer(text='You have sent an outdated date', show_alert=True)
         else:
             db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
                              title=dialog_manager.dialog_data.get('title'),
