@@ -19,10 +19,10 @@ main_dialog = Dialog(
     Window(
         Const('Main menu'),
         Row(
-            Start(Const('my tasks'), id='my_tasks', state=AllTasks.all_tasks),
-            Start(Const('new tasks'), id='new_tasks', state=NewTask.set_title)
+            Start(Const('My tasks'), id='my_tasks', state=AllTasks.all_tasks),
+            Start(Const('New tasks'), id='new_tasks', state=NewTask.set_title)
         ),
-        Start(Const('profile'), id='profile', state=MainSG.profile),
+        Start(Const('Profile'), id='profile', state=MainSG.profile),
         state=MainSG.main
     ),
     Window(
