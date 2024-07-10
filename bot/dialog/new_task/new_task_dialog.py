@@ -10,19 +10,19 @@ from bot.states import NewTask
 
 new_task_dialog = Dialog(
     Window(
-        Const('send title please, maximum of 15 characters'),
+        Const('Send title please, maximum of 15 characters'),
         MessageInput(func=handler_title, content_types=ContentType.TEXT),
         Cancel(),
         state=NewTask.set_title
     ),
     Window(
-        Const('send description please, maximum of 3500 characters'),
+        Const('Send description please, maximum of 3500 characters'),
         MessageInput(func=handler_description, content_types=ContentType.TEXT),
         Back(),
         state=NewTask.set_description
     ),
     Window(
-        Const('should I remind you?'),
+        Const('Should I remind you?'),
         Row(
             Button(Const('Yes'), id='yes', on_click=on_click_date),
             Button(Const('No'), id='no', on_click=on_click_date),
@@ -31,20 +31,20 @@ new_task_dialog = Dialog(
         state=NewTask.date_remind_choose
     ),
     Window(
-        Const('choose date'),
+        Const('Choose date'),
         Calendar(id='calendar', on_click=on_click_chose_date),
         Back(),
         state=NewTask.choose_date,
     ),
     Window(
-        Const('send time like this 22:22 please'),
+        Const('Send time like this 22:22 please'),
         MessageInput(func=handler_time, content_types=ContentType.TEXT),
         Back(),
         state=NewTask.choose_time
     ),
     Window(
-        Const('right?'),
-        Format('title: <b>{title}</b>\n\ndescription: <b>{description}</b>\n\nremind: <b>{date} {time}</b>'),
+        Const('Right?'),
+        Format('Title: <b>{title}</b>\n\nDescription: <b>{description}</b>\n\nRemind: <b>{date} {time}</b>'),
         Row(
             Button(Const('Yes'), id='yes', on_click=on_click_set_task),
             Button(Const('No'), id='no', on_click=on_click_edit_task),
