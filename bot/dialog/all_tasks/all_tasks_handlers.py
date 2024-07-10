@@ -6,7 +6,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
-from bot.database.db_question import db_get_tasks, db_get_task, db_delete_task, db_check_title_in_tasks, db_edit_title, \
+from bot.database.db_question import db_get_tasks_by_id, db_get_task,db_delete_task, db_check_title_in_tasks, db_edit_title, \
     db_edit_description, db_edit_reminder, set_complete
 
 from bot.states import AllTasks
@@ -40,8 +40,8 @@ async def delete_task(callback_query: CallbackQuery,
     await dialog_manager.event.answer(text='task deleted')
     await dialog_manager.switch_to(AllTasks.all_tasks)
 
-async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
-    tasks = db_get_tasks(telegram_id=dialog_manager.event.from_user.id)
+async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
+    tasks = db_get_tasks_by_id(telegram_id=dialog_manager.event.from_user.id)
     buttons = []
     i = 0
     for task in tasks:
@@ -55,19 +55,19 @@ async def get_all_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     task = db_get_task(telegram_id=dialog_manager.event.from_user.id,
                        title=dialog_manager.dialog_data.get('title'))
-    if task == None:
+    if task is None:
         await dialog_manager.event.answer(text='task not found', show_alert=True)
-    elif task[2] == 'True':
+    elif task.remind == 'True':
         completion = 'completed✅'
     else:
         completion = 'completed❌'
-    dialog_manager.dialog_data['completion'] = task[2]
+    dialog_manager.dialog_data['completion'] = task.remind
     return {
         'completion': completion,
-        'title': task[3],
-        'description': task[4],
-        'date': task[5],
-        'time': task[6],
+        'title': task.title,
+        'description': task.description,
+        'date': task.date,
+        'time': task.time,
     }
 
 async def handler_edit_title(message: Message,
@@ -125,7 +125,7 @@ async def handler_edit_time(message: Message,
                              title=dialog_manager.dialog_data.get('title'),
                              date=dialog_manager.dialog_data.get('date'),
                              time=message.text,
-                             remind=True)
+                             remind='True')
             await dialog_manager.switch_to(state=AllTasks.about_task)
 
 async def remove_remind(callback_query: CallbackQuery,
@@ -136,4 +136,4 @@ async def remove_remind(callback_query: CallbackQuery,
                      title=dialog_manager.dialog_data.get('title'),
                      date='No',
                      time='No',
-                     remind=False)
+                     remind='False')

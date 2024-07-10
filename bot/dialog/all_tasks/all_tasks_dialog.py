@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Cancel, Checkbox, Select, ScrollingGroup, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_all_tasks, \
+from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_tasks_by_id, \
     delete_task, handler_edit_title, handler_edit_description, on_click_edit_date, remove_remind, handler_edit_time, \
     on_clicked_completion_task
 from bot.dialog.all_tasks.all_tasks_handlers import get_task
@@ -29,7 +29,7 @@ all_tasks = Dialog(
             height=3,
         ),
         Cancel(),
-        getter=get_all_tasks,
+        getter=get_tasks_by_id,
         state=AllTasks.all_tasks
     ),
     Window(

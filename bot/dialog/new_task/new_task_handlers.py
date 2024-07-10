@@ -58,7 +58,7 @@ async def handler_time(message: Message,
             await dialog_manager.event.answer(text='you have sent an outdated date', show_alert=True)
         else:
             dialog_manager.dialog_data['time'] = message.text
-            dialog_manager.dialog_data['remind'] = True
+            dialog_manager.dialog_data['remind'] = 'True'
             await dialog_manager.next()
 
 async def on_click_chose_date(callback_query: CallbackQuery,

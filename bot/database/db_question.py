@@ -10,8 +10,8 @@ from config import DB_PATH
 
 def db_check_user(telegram_id: int, username: str, first_name: str, last_name: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
-        result = session.query(UsersDB).filter(UsersDB.telegram_id == telegram_id).first()
-        if result == None:
+        result = session.query(UsersDB).filter(and_(UsersDB.telegram_id == telegram_id)).first()
+        if result is None:
             new_user = UsersDB(telegram_id=telegram_id,
                                username=username,
                                first_name=first_name,
@@ -22,7 +22,7 @@ def db_check_user(telegram_id: int, username: str, first_name: str, last_name: s
 def db_check_title_in_tasks(telegram_id: int, title: str) -> bool:
     with Session(autoflush=True, bind=db_engine) as session:
         result = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        if result == None:
+        if result is None:
             return False
         else:
             return True
@@ -39,8 +39,7 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
             session.add(task)
             session.commit()
             return True
-        except Exception as e:
-            print(e)
+        except:
             return False
 
 def db_edit_reminder(telegram_id: int, title: str, date: str, time: str, remind: str) -> None:
@@ -69,48 +68,34 @@ def db_delete_task(telegram_id: int, title: str) -> None:
         session.delete(task)
         session.commit()
 
-def db_get_tasks(telegram_id: int) -> typing.List[TasksDB]:
+def db_get_tasks_by_id(telegram_id: int) -> typing.List[typing.Type[TasksDB]]:
     with Session(autoflush=True, bind=db_engine) as session:
-        tasks = session.query(TasksDB).filter(TasksDB.telegram_id == telegram_id).all()
+        tasks = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).all()
         return tasks
 
-def db_get_task(telegram_id: int, title: str) -> list:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"SELECT * FROM Tasks WHERE telegram_id = {telegram_id} AND title = '{title}'")
-    task = cur.fetchone()
-    con.commit()
-    con.close()
-    return task
+def db_get_task(telegram_id: int, title: str) -> typing.Optional[TasksDB]:
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        return task
 
 def db_get_count_task(telegram_id: int) -> int:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"SELECT * FROM Tasks WHERE telegram_id = {telegram_id}")
-    count_tasks = len(cur.fetchall())
-    con.commit()
-    con.close()
-    return count_tasks
+    with Session(autoflush=True, bind=db_engine) as session:
+        count = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).count()
+        return count
 
-def get_all_tasks() -> list:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"SELECT * FROM Tasks WHERE remind = 'True'")
-    result = cur.fetchall()
-    con.commit()
-    con.close()
-    return result
+def get_all_tasks() -> typing.List[typing.Type[TasksDB]]:
+    with Session(autoflush=True, bind=db_engine) as session:
+        tasks = session.query(TasksDB).filter(and_(TasksDB.remind == 'True')).all()
+        return tasks
 
 def completed_remind(telegram_id: int, title: str) -> None:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"UPDATE Tasks SET remind = 'Completed' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
-    con.commit()
-    con.close()
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        task.remind = 'Completed'
+        session.commit()
 
 def set_complete(telegram_id: int, title: str, completion: str) -> None:
-    con = sqlite3.connect(DB_PATH)
-    cur = con.cursor()
-    cur.execute(f"UPDATE Tasks SET completion = '{completion}' WHERE telegram_id = '{telegram_id}' AND title = '{title}'")
-    con.commit()
-    con.close()
+    with Session(autoflush=True, bind=db_engine) as session:
+        task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
+        task.complete = completion
+        session.commit()
