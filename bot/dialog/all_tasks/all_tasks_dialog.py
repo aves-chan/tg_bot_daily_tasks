@@ -15,7 +15,7 @@ from bot.states import AllTasks
 
 all_tasks = Dialog(
     Window(
-        Const('all tasks'),
+        Const('All tasks'),
         ScrollingGroup(
             Select(
                 Format('{item[0]}'),
@@ -33,68 +33,68 @@ all_tasks = Dialog(
         state=AllTasks.all_tasks
     ),
     Window(
-        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nremind: <b>{date} {time}</b>'),
+        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nRemind: <b>{date} {time}</b>'),
         Button(Format('{completion}'), id='compl', on_click=on_clicked_completion_task),
         Row(
-            SwitchTo(Const('edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
-            SwitchTo(Const('edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
+            SwitchTo(Const('Edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
+            SwitchTo(Const('Edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
         ),
-        SwitchTo(Const('delete task'), id='delete_task', state=AllTasks.delete_task),
+        SwitchTo(Const('Delete task'), id='delete_task', state=AllTasks.delete_task),
         Back(),
         getter=get_task,
         parse_mode='HTML',
         state=AllTasks.about_task
     ),
     Window(
-        Const('are you sure you want to delete the task?'),
-        Button(Const('yes'), id='yes', on_click=delete_task),
+        Const('Are you sure you want to delete the task?'),
+        Button(Const('Yes'), id='yes', on_click=delete_task),
         Back(),
         state=AllTasks.delete_task
     ),
     Window(
-        Const('choose what you will change'),
+        Const('Choose what you will change'),
         Row(
-            SwitchTo(Const('title'), id='e_title', state=AllTasks.edit_title),
-            SwitchTo(Const('description'), id='e_description', state=AllTasks.edit_description),
+            SwitchTo(Const('Title'), id='e_title', state=AllTasks.edit_title),
+            SwitchTo(Const('Description'), id='e_description', state=AllTasks.edit_description),
         ),
         SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
         state=AllTasks.choose_edit_title_or_description
     ),
     Window(
-        Const('send title please, maximum of 15 characters'),
+        Const('Send title please, maximum of 15 characters'),
         MessageInput(func=handler_edit_title, content_types=ContentType.TEXT),
         SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit_title_or_description),
         state=AllTasks.edit_title
     ),
     Window(
-        Const('send description please, maximum of 3500 characters'),
+        Const('Send description please, maximum of 3500 characters'),
         MessageInput(func=handler_edit_description, content_types=ContentType.TEXT),
         SwitchTo(Const('Back'), id='t_back', state=AllTasks.choose_edit_title_or_description),
         state=AllTasks.edit_description
     ),
     Window(
-        Const('choose what you will change'),
+        Const('Choose what you will change'),
         Row(
-            SwitchTo(Const('edit'), id='e_edit', state=AllTasks.edit_date),
-            SwitchTo(Const('remove'), id='e_remove', state=AllTasks.remove_remind),
+            SwitchTo(Const('Edit'), id='e_edit', state=AllTasks.edit_date),
+            SwitchTo(Const('Remove'), id='e_remove', state=AllTasks.remove_remind),
         ),
         SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
         state=AllTasks.choose_edit_remind
     ),
     Window(
-        Const('choose date'),
+        Const('Choose date'),
         Calendar(id='calendar', on_click=on_click_edit_date),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.choose_edit_remind),
         state=AllTasks.edit_date,
     ),
     Window(
-        Const('send time like this 22:22 please'),
+        Const('Send time like this 22:22 please'),
         MessageInput(func=handler_edit_time, content_types=ContentType.TEXT),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.edit_date),
         state=AllTasks.edit_time
     ),
     Window(
-        Const('are you sure you want to remove the reminder'),
+        Const('Are you sure you want to remove the reminder'),
         Row(
             SwitchTo(Const('Yes'), id='yes', state=AllTasks.about_task, on_click=remove_remind),
             SwitchTo(Const('Back'), id='back', state=AllTasks.about_task)
