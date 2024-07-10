@@ -8,7 +8,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from aiogram_dialog import (DialogManager, setup_dialogs, StartMode, ShowMode)
 
-from bot.database.db_question import db_check_user, get_all_tasks, set_completed_remind
+from bot.database.db_question import db_check_user, get_all_tasks_for_remind, set_completed_remind
 from bot.dialog.all_tasks.all_tasks_dialog import all_tasks
 from bot.dialog.main_dialog_and_profile_dialog import main_dialog
 from bot.dialog.new_task.new_task_dialog import new_task_dialog
@@ -28,7 +28,7 @@ def return_first_index(result: list) -> list:
 
 async def update_remind() -> None:
     while True:
-        result = get_all_tasks()
+        result = get_all_tasks_for_remind()
         remind_times = [[task.date + ' ' + task.time, task] for task in result]
         remind_times = [[datetime.datetime.strptime(remind_time[0], '%Y-%m-%d %H:%M'), remind_time] for remind_time in remind_times]
         if len(remind_times) > 0:

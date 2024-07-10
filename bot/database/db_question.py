@@ -3,7 +3,8 @@ import typing
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from bot.database.db_config import db_engine, UsersDB, TasksDB
+from bot.database.db_config import db_engine, UsersDB, TasksDB, RemindColumn, CompletionColumn
+
 
 def db_check_user(telegram_id: int, username: str, first_name: str, last_name: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
@@ -48,13 +49,13 @@ def db_set_task(telegram_id: int, title: str, description: str, date: str, time:
 def set_complete(telegram_id: int, title: str, completion: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
         task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        task.complete = completion
+        task.completion = completion
         session.commit()
 
 def set_completed_remind(telegram_id: int, title: str) -> None:
     with Session(autoflush=True, bind=db_engine) as session:
         task = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id, TasksDB.title == title)).first()
-        task.remind = 'Completed'
+        task.remind = CompletionColumn.completed
         session.commit()
 
 def db_edit_reminder(telegram_id: int, title: str, date: str, time: str, remind: str) -> None:
@@ -92,7 +93,7 @@ def db_get_count_task(telegram_id: int) -> int:
         count = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).count()
         return count
 
-def get_all_tasks() -> typing.List[typing.Type[TasksDB]]:
+def get_all_tasks_for_remind() -> typing.List[typing.Type[TasksDB]]:
     with Session(autoflush=True, bind=db_engine) as session:
-        tasks = session.query(TasksDB).filter(and_(TasksDB.remind == 'True')).all()
+        tasks = session.query(TasksDB).filter(and_(TasksDB.remind == RemindColumn.remind)).all()
         return tasks

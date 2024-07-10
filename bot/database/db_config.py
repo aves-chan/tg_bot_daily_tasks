@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine, Column, Integer, Text
 from sqlalchemy.orm import DeclarativeBase
 
-db_engine = create_engine('sqlite:///database.db')
+from config import DB_PATH
+
+db_engine = create_engine(f'sqlite:///{DB_PATH}')
 
 class Base(DeclarativeBase):
     pass

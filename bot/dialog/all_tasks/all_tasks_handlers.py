@@ -27,6 +27,8 @@ async def on_clicked_completion_task(callback_query: CallbackQuery,
         result = CompletionColumn.not_completed
     else:
         result = CompletionColumn.completed
+    print('on_clicked_completion_task')
+    print(result)
     dialog_manager.dialog_data['completion'] = result
     set_complete(telegram_id=dialog_manager.event.from_user.id,
                  title=dialog_manager.dialog_data.get('title'),
@@ -59,11 +61,13 @@ async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     completion = '...'
     if task is None:
         await dialog_manager.event.answer(text='task not found', show_alert=True)
-    elif task.remind == CompletionColumn.completed:
+    elif task.completion == CompletionColumn.completed:
         completion = 'completed✅'
     else:
         completion = 'completed❌'
-    dialog_manager.dialog_data['completion'] = task.remind
+    dialog_manager.dialog_data['completion'] = task.completion
+    print('get_task')
+    print(task.completion)
     return {
         'completion': completion,
         'title': task.title,
