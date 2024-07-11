@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV PYTHONPATH=/tg_bot_daily_tasks:${PYTHONPATH}
+ENV PYTHONPATH=/tg_bot_daily_tasks
 
 CMD ["python", "/tg_bot_daily_tasks/bot/run_bot.py"]
