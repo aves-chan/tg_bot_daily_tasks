@@ -3,7 +3,7 @@ import typing
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from bot import db_engine, UsersDB, TasksDB, RemindColumn, CompletionColumn
+from bot.database.db_config import db_engine, UsersDB, TasksDB, CompletionColumn, RemindColumn
 
 
 def db_check_user(telegram_id: int, username: str, first_name: str, last_name: str) -> None:

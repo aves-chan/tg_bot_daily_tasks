@@ -6,11 +6,10 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
-from bot import CompletionColumn, RemindColumn
-from bot import db_get_tasks_by_id, db_get_task,db_delete_task, db_check_title_in_tasks, db_edit_title, \
-    db_edit_description, db_edit_reminder, set_complete
-
-from bot import AllTasks
+from bot.database.db_config import CompletionColumn, RemindColumn
+from bot.database.db_question import set_complete, db_delete_task, db_get_tasks_by_id, db_get_task, \
+    db_check_title_in_tasks, db_edit_title, db_edit_description, db_edit_reminder
+from bot.states import AllTasks
 
 
 async def on_clicked_task(callback_query: CallbackQuery,

@@ -5,11 +5,11 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
-from bot import RemindColumn
-from bot import db_set_task, db_check_title_in_tasks
-from bot import NewTask, MainSG
-
 from datetime import date, datetime
+
+from bot.database.db_config import RemindColumn
+from bot.database.db_question import db_check_title_in_tasks, db_set_task
+from bot.states import NewTask, MainSG
 
 
 async def handler_title(message: Message,
