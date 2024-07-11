@@ -5,7 +5,6 @@ WORKDIR /tg_bot_daily_tasks
 COPY requirements.txt .
 
 RUN python -m venv venv
-ENV PATH="/tg_bot_daily_tasks/venv/bin:$PATH"
 
 RUN pip install --no-cache-dir -r requirements.txt
 
