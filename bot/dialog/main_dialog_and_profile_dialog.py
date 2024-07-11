@@ -2,8 +2,8 @@ from aiogram_dialog import Dialog, Window, DialogManager
 from aiogram_dialog.widgets.kbd import Back, Row, Start
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.database.db_question import db_get_count_task
-from bot.states import MainSG, AllTasks, NewTask
+from bot import db_get_count_task
+from bot import MainSG, AllTasks, NewTask
 
 async def get_profile(dialog_manager: DialogManager, **kwargs):
     count_task = db_get_count_task(telegram_id=dialog_manager.event.from_user.id)

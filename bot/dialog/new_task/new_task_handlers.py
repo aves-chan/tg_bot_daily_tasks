@@ -5,9 +5,9 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
-from bot.database.db_config import RemindColumn
-from bot.database.db_question import db_set_task, db_check_title_in_tasks
-from bot.states import NewTask, MainSG
+from bot import RemindColumn
+from bot import db_set_task, db_check_title_in_tasks
+from bot import NewTask, MainSG
 
 from datetime import date, datetime
 

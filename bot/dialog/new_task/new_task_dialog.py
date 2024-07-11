@@ -4,9 +4,9 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Back, Row, Cancel, Calendar
 from aiogram_dialog.widgets.text import Const, Format
 
-from bot.dialog.new_task.new_task_handlers import handler_title, handler_description, on_click_date, \
+from bot import handler_title, handler_description, on_click_date, \
     on_click_chose_date, handler_time, on_click_set_task, on_click_edit_task, get_task
-from bot.states import NewTask
+from bot import NewTask
 
 new_task_dialog = Dialog(
     Window(
