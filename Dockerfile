@@ -12,4 +12,8 @@ COPY . .
 
 ENV PYTHONPATH=/tg_bot_daily_tasks
 
+RUN rm -rf /etc/localtime
+RUN ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+RUN echo "Europe/Moscow" > /etc/timezone
+
 CMD ["python", "/tg_bot_daily_tasks/bot/run_bot.py"]
