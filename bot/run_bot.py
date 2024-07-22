@@ -7,9 +7,10 @@ from aiogram.types import Message
 
 from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
 
+from bot.database.db_config import Base, db_engine
 from bot.database.db_question import get_all_tasks_for_remind, set_completed_remind, db_check_user
 from bot.dialog.all_tasks.all_tasks_dialog import all_tasks
-from bot.dialog.main_dialog_and_profile_dialog import main_dialog
+from bot.dialog.main_dialog import main_dialog
 from bot.dialog.new_task.new_task_dialog import new_task_dialog
 from bot.states import MainSG
 from config import BOT_TOKEN
@@ -64,4 +65,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
+    Base.metadata.create_all(bind=db_engine)
     asyncio.run(main())
