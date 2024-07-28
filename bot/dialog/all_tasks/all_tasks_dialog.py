@@ -9,9 +9,10 @@ from aiogram_dialog.widgets.text import Const, Format
 from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_tasks_by_id, on_clicked_completion_task, \
     get_task, delete_task, handler_edit_title, handler_edit_description, handler_edit_time, on_click_edit_date, \
     remove_remind
+from bot.dialog.handler_utils import CustomCalendar
 from bot.states import AllTasks
 
-all_tasks = Dialog(
+all_tasks_dialog = Dialog(
     Window(
         Const('All tasks'),
         ScrollingGroup(
@@ -31,7 +32,7 @@ all_tasks = Dialog(
         state=AllTasks.all_tasks
     ),
     Window(
-        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nRemind: <b>{date} {time}</b>'),
+        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nRemind: <b>{datetime}</b>'),
         Button(Format('{completion}'), id='compl', on_click=on_clicked_completion_task),
         Row(
             SwitchTo(Const('Edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
@@ -73,7 +74,7 @@ all_tasks = Dialog(
     Window(
         Const('Choose what you will change'),
         Row(
-            SwitchTo(Const('Edit'), id='e_edit', state=AllTasks.edit_date),
+            SwitchTo(Const('Edit reminder'), id='e_edit', state=AllTasks.edit_date),
             SwitchTo(Const('Remove'), id='e_remove', state=AllTasks.remove_remind),
         ),
         SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
@@ -81,7 +82,7 @@ all_tasks = Dialog(
     ),
     Window(
         Const('Choose date'),
-        Calendar(id='calendar', on_click=on_click_edit_date),
+        CustomCalendar(id='calendar', on_click=on_click_edit_date),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.choose_edit_remind),
         state=AllTasks.edit_date,
     ),
