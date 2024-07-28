@@ -53,7 +53,7 @@ all_tasks_dialog = Dialog(
             SwitchTo(Const('Edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
         ),
         SwitchTo(Const('Delete task'), id='delete_task', state=AllTasks.delete_task),
-        Back(),
+        SwitchTo(Const('Back'), id='Back', state=AllTasks.all_tasks),
         getter=get_task,
         parse_mode='HTML',
         state=AllTasks.about_task

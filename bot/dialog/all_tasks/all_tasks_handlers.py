@@ -34,7 +34,7 @@ async def on_clicked_task(callback_query: CallbackQuery,
                           dialog_manager: DialogManager,
                           item_id: str) -> None:
     dialog_manager.dialog_data['title'] = item_id
-    await dialog_manager.next()
+    await dialog_manager.switch_to(state=AllTasks.about_task)
 
 async def on_clicked_completion_task(callback_query: CallbackQuery,
                                      button: Button,
@@ -65,7 +65,7 @@ async def on_clicked_delete_all_tasks(message: Message,
         await dialog_manager.event.answer(text='You have 0 tasks', show_alert=True)
     else:
         dialog_manager.dialog_data['count_tasks'] = count
-        await dialog_manager.switch_to(state=AllTasks.confirmation_of_deletion_of_all_tasks)
+        await dialog_manager.switch_to(state=AllTasks.delete_all_tasks)
 
 async def handler_delete_all_tasks(message: Message,
                                    message_input: MessageInput,
