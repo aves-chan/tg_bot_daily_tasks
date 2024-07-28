@@ -25,6 +25,11 @@ def db_check_title_in_tasks(telegram_id: int, title: str) -> bool:
         else:
             return True
 
+def db_delete_all_tasks(telegram_id: int) -> None:
+    with Session(autoflush=True, bind=db_engine) as session:
+        session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).delete()
+        session.commit()
+
 def db_set_task(telegram_id: int, title: str, description: str, date_time: datetime.datetime, remind: str) -> bool:
     with Session(autoflush=True, bind=db_engine) as session:
         try:
@@ -79,6 +84,11 @@ def db_get_tasks_by_id(telegram_id: int) -> typing.List[typing.Type[TasksDB]]:
     with Session(autoflush=True, bind=db_engine) as session:
         tasks = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).all()
         return tasks
+
+def db_get_count_tasks(telegram_id: int) -> int:
+    with Session(autoflush=True, bind=db_engine) as session:
+        count = session.query(TasksDB).filter(and_(TasksDB.telegram_id == telegram_id)).count()
+        return count
 
 def db_get_task(telegram_id: int, title: str) -> typing.Tuple[typing.Optional[TasksDB], str, int]:
     with Session(autoflush=True, bind=db_engine) as session:

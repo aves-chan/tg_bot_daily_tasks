@@ -8,7 +8,8 @@ from aiogram_dialog.widgets.kbd import Button
 
 from bot.database.db_config import CompletionColumn, RemindColumn
 from bot.database.db_question import db_set_complete, db_delete_task, db_get_tasks_by_id, db_get_task, \
-    db_check_title_in_tasks, db_edit_title, db_edit_description, db_edit_reminder, db_get_user
+    db_check_title_in_tasks, db_edit_title, db_edit_description, db_edit_reminder, db_get_user, db_get_count_tasks, \
+    db_delete_all_tasks
 from bot.states import AllTasks
 
 async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -21,6 +22,11 @@ async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
     return {
         'buttons': buttons,
         'count': len(buttons)
+    }
+
+async def get_count_tasks(dialog_manager: DialogManager, **kwargs) -> dict:
+    return {
+        'count_tasks': dialog_manager.dialog_data.get('count_tasks')
     }
 
 async def on_clicked_task(callback_query: CallbackQuery,
@@ -49,6 +55,29 @@ async def delete_task(callback_query: CallbackQuery,
                    title=dialog_manager.dialog_data.get('title'))
     await dialog_manager.event.answer(text='Task deleted')
     await dialog_manager.switch_to(AllTasks.all_tasks)
+
+async def on_clicked_delete_all_tasks(message: Message,
+                                      message_input: MessageInput,
+                                      dialog_manager: DialogManager
+                                      ) -> None:
+    count = db_get_count_tasks(dialog_manager.event.from_user.id)
+    if count == 0:
+        await dialog_manager.event.answer(text='You have 0 tasks', show_alert=True)
+    else:
+        dialog_manager.dialog_data['count_tasks'] = count
+        await dialog_manager.switch_to(state=AllTasks.confirmation_of_deletion_of_all_tasks)
+
+async def handler_delete_all_tasks(message: Message,
+                                   message_input: MessageInput,
+                                   dialog_manager: DialogManager
+                                   ) -> None:
+    if message.text != 'I want to delete all tasks':
+        await dialog_manager.event.answer(text='You wrote it wrong')
+    else:
+        db_delete_all_tasks(telegram_id=dialog_manager.event.from_user.id)
+        await dialog_manager.event.answer(text='You deleted all tasks', show_alert=True)
+        await dialog_manager.done()
+
 
 async def get_task(dialog_manager: DialogManager, **kwargs) -> dict:
     task, user_timezone, user_timedelta = db_get_task(telegram_id=dialog_manager.event.from_user.id,
