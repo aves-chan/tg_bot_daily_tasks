@@ -1,5 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, Text
-from sqlalchemy.orm import DeclarativeBase
+import typing
+
+from sqlalchemy import create_engine, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from config import DB_PATH
 
@@ -17,28 +19,42 @@ class RemindColumn:
     remind = 'remind'
     reminder_completed = 'reminder_completed'
 
+ALL_TIME_ZONE = {
+    'UTC': 'UTC+0',
+    'KALT': 'KALT+2',
+    'MSK': 'MSK+3',
+    'SAMT': 'SAMT+4',
+    'YEKT': 'YEKT+5',
+    'OMST': 'OMST+6',
+    'KRAT': 'KRAT+7',
+    'IRKT': 'IRKT+8',
+    'YAKT': 'YAKT+9',
+    'VLAT': 'VLAT+10',
+    'MAGT': 'MAGT+11',
+    'PETT': 'PETT+12'
+}
+
+
 class UsersDB(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(Integer, nullable=False)
-    username = Column(Text, nullable=False)
-    first_name = Column(Text)
-    last_name = Column(Text)
+    telegram_id: Mapped[int] = mapped_column(Integer, nullable=False, primary_key=True)
+    username: Mapped[str] = mapped_column(String, nullable=False)
+    first_name: Mapped[typing.Optional[str]]
+    last_name: Mapped[typing.Optional[str]]
+    timezone: Mapped[str] = mapped_column(String, default=ALL_TIME_ZONE['UTC'])
 
 class TasksDB(Base):
     __tablename__ = 'tasks'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(Integer, nullable=False)
-    completion = Column(Text, default=CompletionColumn.not_completed)
-    title = Column(Text, nullable=False)
-    description = Column(Text, nullable=False)
-    date = Column(Text, default='False')
-    time = Column(Text, default='False')
-    remind = Column(Text, default=RemindColumn.not_remind)
-
-Base.metadata.create_all(bind=db_engine)
-
-
-
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    telegram_id: Mapped[int] = mapped_column(Integer,
+                                             ForeignKey('users.telegram_id',
+                                                        ondelete='CASCADE',
+                                                        onupdate='CASCADE'),
+                                             nullable=False)
+    completion: Mapped[str] = mapped_column(String, default=CompletionColumn.not_completed)
+    title: Mapped[str] = mapped_column(String(length=15), nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(String(length=3500), nullable=False)
+    datetime: Mapped[str] = mapped_column(String, nullable=False)
+    remind: Mapped[str] = mapped_column(String, default=RemindColumn.not_remind)

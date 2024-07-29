@@ -8,10 +8,11 @@ from aiogram_dialog.widgets.text import Const, Format
 
 from bot.dialog.all_tasks.all_tasks_handlers import on_clicked_task, get_tasks_by_id, on_clicked_completion_task, \
     get_task, delete_task, handler_edit_title, handler_edit_description, handler_edit_time, on_click_edit_date, \
-    remove_remind
+    remove_remind, get_count_tasks, handler_delete_all_tasks, on_clicked_delete_all_tasks
+from bot.dialog.handler_utils import CustomCalendar
 from bot.states import AllTasks
 
-all_tasks = Dialog(
+all_tasks_dialog = Dialog(
     Window(
         Const('All tasks'),
         ScrollingGroup(
@@ -26,19 +27,33 @@ all_tasks = Dialog(
             width=3,
             height=3,
         ),
+        Button(Const('Delete all tasks'), id='DelAllTasks', on_click=on_clicked_delete_all_tasks),
         Cancel(),
         getter=get_tasks_by_id,
         state=AllTasks.all_tasks
     ),
     Window(
-        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nRemind: <b>{date} {time}</b>'),
+        Const('Are you sure you want to delete all task?'),
+        SwitchTo(Const('Delete all task'), id='DelAllTasks', state=AllTasks.confirmation_of_deletion_of_all_tasks),
+        Back(),
+        state=AllTasks.delete_all_tasks
+    ),
+    Window(
+        Format('Send me "I want to delete all tasks", you have {count_tasks} tasks'),
+        MessageInput(func=handler_delete_all_tasks, content_types=ContentType.TEXT),
+        Back(),
+        getter=get_count_tasks,
+        state=AllTasks.confirmation_of_deletion_of_all_tasks
+    ),
+    Window(
+        Format('<b>{title}</b>\n\n<b>{description}</b>\n\nRemind: <b>{datetime}</b>'),
         Button(Format('{completion}'), id='compl', on_click=on_clicked_completion_task),
         Row(
             SwitchTo(Const('Edit reminder'), id='edit_reminder', state=AllTasks.choose_edit_remind),
             SwitchTo(Const('Edit task'), id='edit_task', state=AllTasks.choose_edit_title_or_description)
         ),
         SwitchTo(Const('Delete task'), id='delete_task', state=AllTasks.delete_task),
-        Back(),
+        SwitchTo(Const('Back'), id='Back', state=AllTasks.all_tasks),
         getter=get_task,
         parse_mode='HTML',
         state=AllTasks.about_task
@@ -73,7 +88,7 @@ all_tasks = Dialog(
     Window(
         Const('Choose what you will change'),
         Row(
-            SwitchTo(Const('Edit'), id='e_edit', state=AllTasks.edit_date),
+            SwitchTo(Const('Edit reminder'), id='e_edit', state=AllTasks.edit_date),
             SwitchTo(Const('Remove'), id='e_remove', state=AllTasks.remove_remind),
         ),
         SwitchTo(Const('Back'), id='c_back', state=AllTasks.about_task),
@@ -81,7 +96,7 @@ all_tasks = Dialog(
     ),
     Window(
         Const('Choose date'),
-        Calendar(id='calendar', on_click=on_click_edit_date),
+        CustomCalendar(id='calendar', on_click=on_click_edit_date),
         SwitchTo(Const('Back'), id='e_back', state=AllTasks.choose_edit_remind),
         state=AllTasks.edit_date,
     ),

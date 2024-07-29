@@ -3,7 +3,10 @@ from aiogram.filters.state import State, StatesGroup
 
 class MainSG(StatesGroup):
     main = State()
+
+class PofileSG(StatesGroup):
     profile = State()
+    change_timezone = State()
 
 class NewTask(StatesGroup):
     set_title = State()
@@ -17,6 +20,8 @@ class AllTasks(StatesGroup):
     all_tasks = State()
     about_task = State()
     delete_task = State()
+    delete_all_tasks = State()
+    confirmation_of_deletion_of_all_tasks = State()
     choose_edit_title_or_description = State()
     edit_title = State()
     edit_description = State()
