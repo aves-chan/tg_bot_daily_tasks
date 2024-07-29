@@ -24,23 +24,20 @@ import logging
 #     return kb.as_markup()
 
 
-def return_first_index(result: list) -> list:
-    return result[0]
-
-# async def update_remind() -> None:
-#     while True:
-#         result = db_get_all_tasks_for_remind()
-#         remind_times = [[task.datetime + ' ' + task.datetime, task] for task in result]
-#         remind_times = [[datetime.datetime.strptime(remind_time[0], '%Y-%m-%d %H:%M'), remind_time] for remind_time in remind_times]
-#         if len(remind_times) > 0:
-#             min_time = min(remind_times, key=return_first_index)
-#             if min_time[0] < datetime.datetime.now():
-#                 await bot.send_message(chat_id=min_time[1][1].telegram_id,
-#                                        text=f'<b>{min_time[1][1].title}</b>\n\n{min_time[1][1].description}',
-#                                        # reply_markup=kb_back(),
-#                                        parse_mode='HTML')
-#                 db_set_completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
-#         await asyncio.sleep(0.5)
+async def update_remind() -> None:
+    while True:
+        result = db_get_all_tasks_for_remind()
+        remind_times = [[task.datetime, task] for task in result]
+        remind_times = [[datetime.datetime.strptime(remind_time[0], '%Y-%m-%d %H:%M:%S'), remind_time] for remind_time in remind_times]
+        if len(remind_times) > 0:
+            min_time = min(remind_times, key=lambda x: x[0])
+            if min_time[0] < datetime.datetime.now():
+                await bot.send_message(chat_id=min_time[1][1].telegram_id,
+                                       text=f'<b>{min_time[1][1].title}</b>\n\n{min_time[1][1].description}',
+                                       # reply_markup=kb_back(),
+                                       parse_mode='HTML')
+                db_set_completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
+        await asyncio.sleep(0.5)
 
 storage = MemoryStorage()
 bot = Bot(token=BOT_TOKEN)
@@ -61,7 +58,7 @@ async def start(message: Message, dialog_manager: DialogManager):
 #     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 async def main():
-    # asyncio.ensure_future(update_remind())
+    asyncio.ensure_future(update_remind())
     logging.basicConfig(level=logging.INFO)
     await dp.start_polling(bot)
 
