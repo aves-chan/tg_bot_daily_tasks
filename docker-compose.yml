@@ -1,5 +1,5 @@
 services:
-  db:
+  database:
     image: postgres
     restart: always
     ports:
@@ -8,5 +8,6 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: tg_bot
 
-  bot:
+  tg_bot:
     build: .
+    restart: always
