@@ -1,0 +1,13 @@
+services:
+  database:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: tg_bot
+
+  tg_bot:
+    build: .
+    restart: always

@@ -1,5 +1,7 @@
 import datetime
 import asyncio
+from logging.handlers import RotatingFileHandler
+
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -58,10 +60,12 @@ async def start(message: Message, dialog_manager: DialogManager):
 #     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 async def main():
+    open('tg_bot.log', 'w').close()
+    Base.metadata.create_all(bind=db_engine)
     asyncio.ensure_future(update_remind())
-    logging.basicConfig(level=logging.INFO)
+    handler = RotatingFileHandler('tg_bot.log', maxBytes=1e6)
+    logging.basicConfig(level=logging.INFO, handlers=[handler])
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    Base.metadata.create_all(bind=db_engine)
     asyncio.run(main())

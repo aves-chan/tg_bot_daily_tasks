@@ -1,11 +1,11 @@
 import typing
 
-from sqlalchemy import create_engine, Integer, String, ForeignKey, DateTime
+from sqlalchemy import create_engine, Integer, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from config import DB_PATH
 
-db_engine = create_engine(f'sqlite:///{DB_PATH}')
+db_engine = create_engine(DB_PATH)
 
 class Base(DeclarativeBase):
     pass
