@@ -2,7 +2,8 @@ import datetime
 import asyncio
 from logging.handlers import RotatingFileHandler
 
-import redis
+from aiogram.fsm.storage.base import KeyBuilder, DefaultKeyBuilder
+from redis import asyncio as redis_asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
@@ -18,7 +19,7 @@ from bot.dialog.main_dialog import main_dialog
 from bot.dialog.new_task.new_task_dialog import new_task_dialog
 from bot.dialog.profile.profile_dialog import profile_dialog
 from bot.states import MainSG
-from config import BOT_TOKEN
+from config import BOT_TOKEN, REDIS_PORT, REDIS_PASSWORD, REDIS_HOST
 
 import logging
 
@@ -43,10 +44,10 @@ async def update_remind() -> None:
                 db_set_completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
         await asyncio.sleep(0.5)
 
-redis = redis.Redis(host='redis', password='123456')
-storage = RedisStorage(redis=redis)
+
+storage = redis_asyncio.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD)
 bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(storage=storage)
+dp = Dispatcher(storage=RedisStorage(redis=storage, key_builder=DefaultKeyBuilder(with_destiny=True)))
 dp.include_routers(main_dialog, new_task_dialog, all_tasks_dialog, profile_dialog)
 setup_dialogs(dp)
  

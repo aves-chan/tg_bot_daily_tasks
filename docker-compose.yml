@@ -17,10 +17,10 @@ services:
     restart: always
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - redis_data:/data
+
 
   tg_bot:
     build: .
