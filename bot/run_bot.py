@@ -2,9 +2,11 @@ import datetime
 import asyncio
 from logging.handlers import RotatingFileHandler
 
+import redis
+
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import Message
 
 from aiogram_dialog import (DialogManager, setup_dialogs, StartMode)
@@ -41,7 +43,8 @@ async def update_remind() -> None:
                 db_set_completed_remind(min_time[1][1].telegram_id, min_time[1][1].title)
         await asyncio.sleep(0.5)
 
-storage = MemoryStorage()
+redis = redis.Redis(host='redis', password='123456')
+storage = RedisStorage(redis=redis)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 dp.include_routers(main_dialog, new_task_dialog, all_tasks_dialog, profile_dialog)
@@ -60,10 +63,9 @@ async def start(message: Message, dialog_manager: DialogManager):
 #     await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 async def main():
-    open('tg_bot.log', 'w').close()
     Base.metadata.create_all(bind=db_engine)
     asyncio.ensure_future(update_remind())
-    handler = RotatingFileHandler('tg_bot.log', maxBytes=1e6)
+    handler = RotatingFileHandler('tg_bot.log')
     logging.basicConfig(level=logging.INFO, handlers=[handler])
     await dp.start_polling(bot)
 
