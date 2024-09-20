@@ -1,4 +1,3 @@
-import re
 from datetime import date, datetime, timedelta
 
 from aiogram.types import CallbackQuery, Message
@@ -7,9 +6,11 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
 from bot.database.db_config import CompletionColumn, RemindColumn
-from bot.database.db_question import db_set_complete, db_delete_task, db_get_tasks_by_id, db_get_task, \
-    db_check_title_in_tasks, db_edit_title, db_edit_description, db_edit_reminder, db_get_user, db_get_count_tasks, \
-    db_delete_all_tasks
+from bot.database.db_question import (db_set_complete, db_delete_task, db_get_tasks_by_id, db_get_task,
+                                      db_edit_title, db_edit_description, db_edit_reminder, db_get_count_tasks,
+                                      db_delete_all_tasks)
+from bot.dialog.handler_utils import check_title_validation, check_description_validation, check_date_validation, \
+    check_time_validation
 from bot.states import AllTasks
 
 async def get_tasks_by_id(dialog_manager: DialogManager, **kwargs) -> dict:
@@ -105,58 +106,43 @@ async def handler_edit_title(message: Message,
                              message_input: MessageInput,
                              dialog_manager: DialogManager
                              ) -> None:
-    if len(message.text) <= 15:
-        if db_check_title_in_tasks(telegram_id=dialog_manager.event.from_user.id,
-                                   title=message.text):
-            await dialog_manager.event.answer('A task with that name already exists')
-        else:
-            db_edit_title(telegram_id=dialog_manager.event.from_user.id,
-                          title=dialog_manager.dialog_data.get('title'),
-                          new_title=message.text)
-            dialog_manager.dialog_data['title'] = dialog_manager.event.text
-            await dialog_manager.switch_to(AllTasks.about_task)
-    else:
-        await dialog_manager.event.answer(f'You are sending a long title, your size title is {len(message.text)}')
+    if await check_title_validation(text=message.text, dialog_manager=dialog_manager):
+        db_edit_title(telegram_id=dialog_manager.event.from_user.id,
+                      title=dialog_manager.dialog_data.get('title'),
+                      new_title=message.text)
+        dialog_manager.dialog_data['title'] = dialog_manager.event.text
+        await dialog_manager.switch_to(AllTasks.about_task)
 
 async def handler_edit_description(message: Message,
                                    message_input: MessageInput,
                                    dialog_manager: DialogManager
                                    ) -> None:
-    if len(message.text) <= 3500:
+    if await check_description_validation(text=message.text, dialog_manager=dialog_manager):
         db_edit_description(telegram_id=dialog_manager.event.from_user.id,
                             title=dialog_manager.dialog_data.get('title'),
                             new_description=dialog_manager.event.text)
         await dialog_manager.switch_to(AllTasks.about_task)
-    else:
-        await dialog_manager.event.answer(f'You are sending a long description, your size description is {len(message.text)}')
 
 async def on_click_edit_date(callback_query: CallbackQuery,
                              button: Button,
                              dialog_manager: DialogManager,
                              selected_date: date
                              ) -> None:
-    if selected_date >= (datetime.now() + timedelta(hours=dialog_manager.dialog_data.get('user_timedelta'))).date():
-        dialog_manager.dialog_data['selected_date'] = selected_date
+    if await check_date_validation(selected_date=selected_date, dialog_manager=dialog_manager):
+        dialog_manager.dialog_data['selected_date'] = str(selected_date)
         await dialog_manager.switch_to(state=AllTasks.edit_time)
-    else:
-        await dialog_manager.event.answer(text='Choose a date no later than today', show_alert=True)
 
 async def handler_edit_time(message: Message,
                             button: Button,
                             dialog_manager: DialogManager
                             ) -> None:
-    regexp = re.compile("(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])")
-    if (bool(regexp.match(message.text))):
-        selected_datetime = datetime.combine(dialog_manager.dialog_data.get('selected_date'),
-                                             datetime.strptime(message.text, '%H:%M').time())
-        if selected_datetime < datetime.now() + timedelta(hours=dialog_manager.dialog_data['user_timedelta']):
-            await dialog_manager.event.answer(text='You have sent an outdated date', show_alert=True)
-        else:
-            db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
-                             title=dialog_manager.dialog_data.get('title'),
-                             date_time=selected_datetime - timedelta(hours=dialog_manager.dialog_data['user_timedelta']),
-                             remind=RemindColumn.remind)
-            await dialog_manager.switch_to(state=AllTasks.about_task)
+    result = await check_time_validation(text=message.text, dialog_manager=dialog_manager)
+    if isinstance(result, datetime):
+        db_edit_reminder(telegram_id=dialog_manager.event.from_user.id,
+                         title=dialog_manager.dialog_data.get('title'),
+                         date_time=result - timedelta(hours=dialog_manager.dialog_data['user_timedelta']),
+                         remind=RemindColumn.remind)
+        await dialog_manager.switch_to(state=AllTasks.about_task)
 
 async def remove_remind(callback_query: CallbackQuery,
                         button: Button,
