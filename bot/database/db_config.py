@@ -54,7 +54,7 @@ class TasksDB(Base):
                                                         onupdate='CASCADE'),
                                              nullable=False)
     completion: Mapped[str] = mapped_column(String, default=CompletionColumn.not_completed)
-    title: Mapped[str] = mapped_column(String(length=15), nullable=False, unique=True)
+    title: Mapped[str] = mapped_column(String(length=15), nullable=False)
     description: Mapped[str] = mapped_column(String(length=3500), nullable=False)
     datetime: Mapped[str] = mapped_column(String, nullable=False)
     remind: Mapped[str] = mapped_column(String, default=RemindColumn.not_remind)
