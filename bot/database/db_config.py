@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import create_engine, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Integer, String, ForeignKey, BigInteger
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from config import DB_PATH
@@ -38,7 +38,7 @@ ALL_TIME_ZONE = {
 class UsersDB(Base):
     __tablename__ = 'users'
 
-    telegram_id: Mapped[int] = mapped_column(Integer, nullable=False, primary_key=True)
+    telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=False, primary_key=True)
     username: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[typing.Optional[str]]
     last_name: Mapped[typing.Optional[str]]
